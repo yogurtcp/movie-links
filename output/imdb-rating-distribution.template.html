@@ -1,0 +1,125 @@
+<div id="imdb-rating-census">
+  <style>
+    #imdb-rating-census { position: relative; color: var(--foreground); }
+    #imdb-rating-census .census-controls { display: grid; grid-template-columns: minmax(150px,1fr) minmax(200px,2fr); gap: 24px; align-items: end; margin: 18px 0; }
+    #imdb-rating-census .census-controls .form-label { display: block; margin-bottom: 8px; }
+    #imdb-rating-census .census-panels { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+    #imdb-rating-census .census-panel { min-width: 0; }
+    #imdb-rating-census h3 { margin: 0 0 6px; }
+    #imdb-rating-census .census-svg { display: block; width: 100%; overflow: visible; }
+    #imdb-rating-census .census-svg text { fill: var(--foreground); font-size: 12px; }
+    #imdb-rating-census .census-svg .domain, #imdb-rating-census .census-svg .tick line { stroke: var(--border); }
+    #imdb-rating-census .census-result { margin: 16px 0 8px; }
+    #imdb-rating-census .census-note { margin-top: 14px; color: var(--muted-foreground); }
+    #imdb-rating-census .census-tooltip { position: absolute; pointer-events: none; z-index: 5; background: var(--popover); color: var(--popover-foreground); padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; }
+    @media (max-width: 650px) {
+      #imdb-rating-census .census-panels { grid-template-columns: 1fr; gap: 28px; }
+      #imdb-rating-census .census-controls { grid-template-columns: 1fr; gap: 15px; }
+    }
+  </style>
+  <h2>IMDb rating distributions</h2>
+  <div class="census-controls">
+    <label><span class="form-label">Minimum votes per title</span><select class="form-select" id="census-votes"><option value="0">All rated titles</option><option value="100">100 votes</option><option value="500">500 votes</option><option value="1000">1,000 votes</option><option value="5000">5,000 votes</option><option value="10000">10,000 votes</option><option value="50000">50,000 votes</option><option value="100000">100,000 votes</option></select></label>
+    <label><span class="form-label">Highlight ratings at least <output id="census-cutoff-value" class="tabular-nums">7.0</output> / 10</span><input class="form-range" id="census-cutoff" type="range" min="1" max="10" step="0.1" value="7" aria-label="Minimum highlighted IMDb rating"></label>
+  </div>
+  <div class="census-panels">
+    <section class="census-panel"><h3>Movies</h3><div id="census-movies-count" class="text-small tabular-nums"></div><svg id="census-movies-plot" class="census-svg" role="img" aria-label="Distribution of IMDb ratings for movies"></svg></section>
+    <section class="census-panel"><h3>TV series & miniseries</h3><div id="census-tv-count" class="text-small tabular-nums"></div><svg id="census-tv-plot" class="census-svg" role="img" aria-label="Distribution of IMDb ratings for television series and miniseries"></svg></section>
+  </div>
+  <div class="census-result tabular-nums" id="census-result" role="status" aria-live="polite"></div>
+  <div class="census-note text-small" id="census-note"></div>
+  <div class="tooltip census-tooltip text-small" role="tooltip" hidden></div>
+  <script type="application/json" id="census-data">__IMDB_DISTRIBUTION_DATA__</script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script>
+  (() => {
+    const root = document.getElementById('imdb-rating-census');
+    const data = JSON.parse(root.querySelector('#census-data').textContent);
+    const votesControl = root.querySelector('#census-votes');
+    const cutoffControl = root.querySelector('#census-cutoff');
+    const tooltip = root.querySelector('.census-tooltip');
+    const fmt = new Intl.NumberFormat('en-US');
+    const groups = ['movies', 'tv'];
+    const colors = { movies: 'var(--viz-series-1)', tv: 'var(--viz-series-2)' };
+    const saved = window.openai?.widgetState?.modelContent;
+    let state = { votes: 0, cutoff: 7 };
+    function restore(candidate) {
+      if (!candidate || typeof candidate !== 'object') return;
+      if (data.minimum_vote_options.includes(Number(candidate.minimumVotes))) state.votes = Number(candidate.minimumVotes);
+      if (Number.isFinite(candidate.minimumRating) && candidate.minimumRating >= 1 && candidate.minimumRating <= 10) state.cutoff = candidate.minimumRating;
+    }
+    restore(saved);
+    function histogram(group) { return data.histograms[group][String(state.votes)]; }
+    function total(array) { return array.reduce((a,b) => a+b, 0); }
+    function passing(group) { return total(histogram(group).slice(Math.round(state.cutoff * 10))); }
+    function persist() {
+      if (window.openai?.setWidgetState) window.openai.setWidgetState({ modelContent: { minimumVotes: state.votes, minimumRating: state.cutoff, moviesPassing: passing('movies'), televisionPassing: passing('tv') }, privateContent: null }).catch(() => {});
+    }
+    function draw(animate = false) {
+      votesControl.value = String(state.votes);
+      cutoffControl.value = String(state.cutoff);
+      root.querySelector('#census-cutoff-value').textContent = state.cutoff.toFixed(1);
+      const observed = groups.flatMap(group => histogram(group).flatMap((n,i) => n ? [{ x:i/10, y:100*n/total(histogram(group)) }] : []));
+      const xExtent = d3.extent(observed, d => d.x);
+      const xDomain = [Math.min(xExtent[0],1,state.cutoff)-.05, Math.max(xExtent[1],10,state.cutoff)+.05];
+      const sharedYMax = (d3.max(observed, d => d.y) || 1) * 1.12;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      for (const group of groups) {
+        const counts = histogram(group);
+        const n = total(counts);
+        const survivors = passing(group);
+        root.querySelector('#census-' + group + '-count').textContent = fmt.format(n) + ' rated titles · ' + fmt.format(survivors) + ' at ≥ ' + state.cutoff.toFixed(1);
+        const element = root.querySelector('#census-' + group + '-plot');
+        const width = Math.max(260, element.parentElement.getBoundingClientRect().width);
+        const height = 300;
+        const margin = { left:64, right:18, top:24, bottom:56 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        const svg = d3.select(element).attr('viewBox', [0,0,width,height]).attr('height', height);
+        svg.selectAll('*').remove();
+        svg.append('title').text((group === 'movies' ? 'Movies' : 'TV series and miniseries') + ': IMDb rating distribution');
+        svg.append('desc').text('Each bar counts titles with one average rating, in steps of 0.1. Vertical axis is the percentage of eligible titles. Ratings at least ' + state.cutoff.toFixed(1) + ' are highlighted. ' + fmt.format(survivors) + ' of ' + fmt.format(n) + ' titles meet that cutoff.');
+        const x = d3.scaleLinear().domain(xDomain).range([margin.left, width-margin.right]);
+        const y = d3.scaleLinear().domain([0,sharedYMax]).nice().range([height-margin.bottom, margin.top]);
+        svg.append('g').attr('transform','translate(0,'+(height-margin.bottom)+')').call(d3.axisBottom(x).tickValues(width<420 ? [1,4,7,10] : [1,2,4,6,8,10]).tickFormat(d3.format('d')).tickSizeOuter(0));
+        svg.append('g').attr('transform','translate('+margin.left+',0)').call(d3.axisLeft(y).ticks(4).tickFormat(v => d3.format('.1~f')(v)+'%').tickSizeOuter(0));
+        svg.append('g').attr('stroke','var(--border)').attr('stroke-width',1).attr('opacity',.5).selectAll('line').data(y.ticks(4).filter(v=>v>0)).join('line').attr('x1',margin.left).attr('x2',width-margin.right).attr('y1',d=>y(d)).attr('y2',d=>y(d));
+        svg.append('rect').attr('data-chart-frame','').attr('x',margin.left).attr('y',margin.top).attr('width',innerWidth).attr('height',innerHeight).attr('fill','none').attr('stroke','var(--border)').attr('stroke-width',1);
+        const bins = counts.map((count,i)=>({rating:i/10,count,percent:n ? count/n*100 : 0})).filter(d=>d.rating>=1);
+        const barWidth = Math.max(1, x(1.05)-x(.95)-.4);
+        const bars = svg.append('g').selectAll('rect').data(bins).join('rect').attr('x',d=>x(d.rating)-barWidth/2).attr('width',barWidth).attr('y',d=>y(d.percent)).attr('height',d=>y(0)-y(d.percent)).attr('fill',colors[group]).attr('opacity',d=>d.rating>=state.cutoff-.001 ? .95 : .23);
+
+        svg.append('line').attr('x1',x(state.cutoff)).attr('x2',x(state.cutoff)).attr('y1',margin.top).attr('y2',height-margin.bottom).attr('stroke','var(--foreground)').attr('stroke-width',1).attr('stroke-dasharray','3 4');
+        svg.append('text').attr('class','axis-title').attr('data-axis','x').attr('x',(margin.left+width-margin.right)/2).attr('y',height-10).attr('text-anchor','middle').text('Average IMDb rating / 10');
+        svg.append('text').attr('class','axis-title').attr('data-axis','y').attr('x',margin.left).attr('y',12).text('Share of titles (%)');
+        const hoverBar = svg.append('rect').attr('fill','var(--foreground)').attr('opacity',.08).attr('width',barWidth+2).attr('y',margin.top).attr('height',innerHeight).attr('visibility','hidden');
+        const showTooltip = event => {
+          const [px] = d3.pointer(event,element);
+          const ratingIndex = Math.max(10,Math.min(100,Math.round(x.invert(px)*10)));
+          const count = counts[ratingIndex];
+          const percent = n ? 100*count/n : 0;
+          hoverBar.attr('x',x(ratingIndex/10)-(barWidth+2)/2).attr('visibility','visible');
+          tooltip.textContent = (ratingIndex/10).toFixed(1) + ' / 10 · ' + fmt.format(count) + ' titles · ' + percent.toFixed(2) + '%';
+          tooltip.hidden = false;
+          const rect = root.getBoundingClientRect();
+          tooltip.style.left = Math.min(Math.max(0,event.clientX-rect.left+12),Math.max(0,rect.width-tooltip.offsetWidth)) + 'px';
+          tooltip.style.top = Math.max(0,event.clientY-rect.top-tooltip.offsetHeight-14) + 'px';
+        };
+        svg.append('rect').attr('data-chart-hit','').attr('x',margin.left).attr('y',margin.top).attr('width',innerWidth).attr('height',innerHeight).attr('fill','transparent').on('pointermove',showTooltip).on('pointerdown',showTooltip).on('pointerleave',()=>{ tooltip.hidden=true; hoverBar.attr('visibility','hidden'); });
+      }
+      const sum = passing('movies') + passing('tv');
+      root.querySelector('#census-result').textContent = 'At ≥ ' + state.cutoff.toFixed(1) + ' / 10' + (state.votes ? ' and ≥ ' + fmt.format(state.votes) + ' votes' : ', across all vote counts') + ': ' + fmt.format(sum) + ' titles qualify.';
+      root.querySelector('#census-note').textContent = 'IMDb snapshot: ' + data.sources[0].last_modified.slice(5,16) + '. One title per observation; same percentage scale in both panels. Non-adult movies, series and miniseries; all years and genres. Episodes, shorts, TV movies and unrated titles excluded.';
+    }
+    votesControl.addEventListener('change',()=>{ state.votes=Number(votesControl.value); draw(true); persist(); });
+    cutoffControl.addEventListener('input',()=>{ state.cutoff=Number(cutoffControl.value); draw(); persist(); });
+    window.addEventListener('openai:set_globals',event=>{
+      const next=event.detail?.globals?.widgetState?.modelContent;
+      if (next) { restore(next); draw(); }
+    });
+    let lastWidth=0;
+    new ResizeObserver(entries=>{ const width=Math.round(entries[0].contentRect.width); if (width!==lastWidth) { lastWidth=width; draw(); } }).observe(root);
+    draw();
+  })();
+  </script>
+</div>

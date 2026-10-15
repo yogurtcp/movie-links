@@ -1,0 +1,125 @@
+<div id="imdb-rating-census">
+  <style>
+    #imdb-rating-census { position: relative; color: var(--foreground); }
+    #imdb-rating-census .census-controls { display: grid; grid-template-columns: minmax(150px,1fr) minmax(200px,2fr); gap: 24px; align-items: end; margin: 18px 0; }
+    #imdb-rating-census .census-controls .form-label { display: block; margin-bottom: 8px; }
+    #imdb-rating-census .census-panels { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+    #imdb-rating-census .census-panel { min-width: 0; }
+    #imdb-rating-census h3 { margin: 0 0 6px; }
+    #imdb-rating-census .census-svg { display: block; width: 100%; overflow: visible; }
+    #imdb-rating-census .census-svg text { fill: var(--foreground); font-size: 12px; }
+    #imdb-rating-census .census-svg .domain, #imdb-rating-census .census-svg .tick line { stroke: var(--border); }
+    #imdb-rating-census .census-result { margin: 16px 0 8px; }
+    #imdb-rating-census .census-note { margin-top: 14px; color: var(--muted-foreground); }
+    #imdb-rating-census .census-tooltip { position: absolute; pointer-events: none; z-index: 5; background: var(--popover); color: var(--popover-foreground); padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; }
+    @media (max-width: 650px) {
+      #imdb-rating-census .census-panels { grid-template-columns: 1fr; gap: 28px; }
+      #imdb-rating-census .census-controls { grid-template-columns: 1fr; gap: 15px; }
+    }
+  </style>
+  <h2>IMDb rating distributions</h2>
+  <div class="census-controls">
+    <label><span class="form-label">Minimum votes per title</span><select class="form-select" id="census-votes"><option value="0">All rated titles</option><option value="100">100 votes</option><option value="500">500 votes</option><option value="1000">1,000 votes</option><option value="5000">5,000 votes</option><option value="10000">10,000 votes</option><option value="50000">50,000 votes</option><option value="100000">100,000 votes</option></select></label>
+    <label><span class="form-label">Highlight ratings at least <output id="census-cutoff-value" class="tabular-nums">7.0</output> / 10</span><input class="form-range" id="census-cutoff" type="range" min="1" max="10" step="0.1" value="7" aria-label="Minimum highlighted IMDb rating"></label>
+  </div>
+  <div class="census-panels">
+    <section class="census-panel"><h3>Movies</h3><div id="census-movies-count" class="text-small tabular-nums"></div><svg id="census-movies-plot" class="census-svg" role="img" aria-label="Distribution of IMDb ratings for movies"></svg></section>
+    <section class="census-panel"><h3>TV series & miniseries</h3><div id="census-tv-count" class="text-small tabular-nums"></div><svg id="census-tv-plot" class="census-svg" role="img" aria-label="Distribution of IMDb ratings for television series and miniseries"></svg></section>
+  </div>
+  <div class="census-result tabular-nums" id="census-result" role="status" aria-live="polite"></div>
+  <div class="census-note text-small" id="census-note"></div>
+  <div class="tooltip census-tooltip text-small" role="tooltip" hidden></div>
+  <script type="application/json" id="census-data">{"generated_at":"2026-10-15T06:00:14.834054+00:00","sources":[{"url":"https://datasets.imdbws.com/title.ratings.tsv.gz","last_modified":"Thu, 15 Oct 2026 00:44:53 GMT","downloaded_at":"2026-10-15T05:57:56.862449+00:00","bytes":8695482},{"url":"https://datasets.imdbws.com/title.basics.tsv.gz","last_modified":"Thu, 15 Oct 2026 00:43:44 GMT","downloaded_at":"2026-10-15T05:57:56.867500+00:00","bytes":228645881}],"scope":{"movies":["movie"],"tv":["tvSeries","tvMiniSeries"],"isAdult":"0","years":"all","genres":"all","countries":"all","unrated":"excluded from distributions"},"minimum_vote_options":[0,100,500,1000,5000,10000,50000,100000],"catalog_totals_in_scope":{"movies":750458,"tv":376951},"rated_totals":{"movies":345360,"tv":139913},"adult_or_unknown_flag_excluded":{"movies":9102,"tv":3649},"all_title_type_counts":{"short":1163505,"movie":759560,"tvShort":11081,"tvMovie":156595,"tvEpisode":9950953,"tvSeries":306994,"tvMiniSeries":73606,"tvSpecial":61158,"video":332285,"videoGame":50637,"tvPilot":1},"genre_counts_rated":{"movies":{"Romance":37524,"Documentary":57654,"News":689,"Sport":4534,"Action":35673,"Adventure":21017,"Biography":11197,"Drama":157673,"Fantasy":10608,"Comedy":82838,"War":6837,"Crime":30160,"Family":13336,"History":9889,"Sci-Fi":8216,"Thriller":29932,"Western":5101,"Mystery":13838,"Horror":27079,"Music":9540,"Musical":7109,"Animation":6465,"Film-Noir":876,"Reality-TV":101,"Talk-Show":28,"Game-Show":3},"tv":{"Documentary":18320,"News":2352,"Talk-Show":5934,"Family":9280,"Game-Show":4680,"Comedy":37319,"Music":3753,"Drama":41527,"Crime":10394,"Mystery":5186,"Reality-TV":12700,"History":4982,"Action":9237,"Adventure":9025,"Western":356,"Horror":2817,"Sci-Fi":2584,"Romance":11725,"Animation":13257,"Fantasy":4559,"Thriller":4113,"Biography":2293,"Musical":746,"War":1226,"Sport":3187,"Short":1655}},"histograms":{"movies":{"0":[0,0,0,0,0,0,0,0,0,0,152,53,77,70,110,127,162,150,193,196,260,330,399,456,507,569,635,747,876,799,1043,1079,1378,1457,1634,1748,1970,2025,2278,2206,2694,2716,3488,3324,3929,3892,4458,4661,5298,4762,5698,5792,6936,7035,7775,7905,8494,8535,9831,8880,10120,10059,11344,10715,11421,10711,11014,10133,10889,9072,9933,8723,9268,7488,7431,6500,6124,5163,5319,3888,4388,3299,3597,2721,2638,2225,2114,1686,1782,1261,1358,886,988,510,366,162,120,76,35,14,30],"100":[0,0,0,0,0,0,0,0,0,0,22,24,32,29,45,48,76,69,76,88,119,146,190,250,260,318,346,419,456,457,488,604,669,795,831,954,1034,1126,1147,1160,1138,1338,1600,1675,1864,1921,2133,2379,2344,2252,2338,2815,3083,3492,3698,3835,4045,4243,4476,4189,4510,5120,5231,5405,5416,5240,5147,4907,4659,4045,3984,4036,3626,3084,2681,2355,1989,1586,1289,1041,916,750,572,445,353,297,245,178,160,105,101,81,75,52,39,17,14,10,7,7,1],"500":[0,0,0,0,0,0,0,0,0,0,12,13,14,13,20,17,31,26,35,27,46,47,63,96,91,106,121,154,155,157,159,188,228,284,291,361,387,417,448,433,392,489,613,670,722,744,847,1002,951,908,897,1166,1262,1459,1610,1659,1818,1884,2020,1903,2018,2472,2605,2710,2817,2786,2793,2692,2546,2247,2296,2398,2178,1873,1585,1461,1250,976,776,627,542,447,341,262,185,150,113,80,67,43,37,29,23,22,11,5,10,5,5,6,1],"1000":[0,0,0,0,0,0,0,0,0,0,8,5,9,8,8,12,21,16,21,13,25,17,33,34,42,52,61,71,75,81,86,95,129,148,139,186,231,210,249,240,212,258,337,362,440,473,511,600,603,567,556,739,798,936,1061,1089,1209,1264,1377,1293,1342,1671,1769,1868,1939,1965,2025,1981,1894,1692,1799,1861,1702,1514,1250,1197,1023,784,618,519,446,373,277,206,140,114,78,64,45,26,25,12,9,8,2,2,6,4,3,5,1],"5000":[0,0,0,0,0,0,0,0,0,0,4,0,7,5,2,5,8,7,5,6,4,2,8,10,6,9,10,11,14,7,16,12,18,24,20,32,28,27,52,37,46,40,67,75,89,93,133,151,164,144,155,214,275,321,367,391,460,506,529,497,491,670,695,759,746,722,778,813,725,645,766,807,763,745,639,639,559,419,368,286,277,235,165,105,83,49,41,25,18,9,8,4,3,1,0,0,0,0,0,1,0],"10000":[0,0,0,0,0,0,0,0,0,0,3,0,4,4,1,2,3,7,2,3,4,1,4,6,2,6,8,6,8,4,7,6,7,13,10,16,16,14,28,19,26,16,35,25,48,46,63,78,90,78,90,119,153,184,208,237,275,327,329,323,336,446,461,517,515,475,522,542,483,428,500,543,490,513,449,452,407,308,277,220,217,185,127,82,58,37,32,19,13,6,5,4,1,1,0,0,0,0,0,0,0],"50000":[0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,1,1,2,1,0,1,1,0,3,2,1,4,0,0,1,0,2,0,3,4,0,6,2,1,1,9,5,7,7,10,12,14,15,15,24,31,36,50,69,84,93,87,97,106,144,178,192,198,205,211,216,195,175,191,206,198,219,164,192,161,135,143,109,113,108,76,42,32,22,17,6,7,1,4,1,1,1,0,0,0,0,0,0,0],"100000":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,0,1,0,0,0,0,1,0,1,1,0,1,1,0,1,1,1,2,0,3,1,2,1,7,7,12,17,22,27,35,36,38,42,44,78,88,108,102,130,125,124,108,94,124,137,124,158,108,126,118,98,98,70,75,77,62,32,27,21,14,5,7,1,4,1,1,1,0,0,0,0,0,0,0]},"tv":{"0":[0,0,0,0,0,0,0,0,0,0,129,38,53,46,71,62,92,90,144,107,136,124,150,151,173,181,203,207,278,251,291,256,318,297,357,375,444,381,495,389,571,504,714,547,702,659,862,732,972,829,1222,1009,1432,1246,1618,1613,1857,1821,2375,2041,2585,2585,3293,3063,3556,3663,3937,3820,4424,4053,4702,4582,5215,4684,4973,4589,4839,4359,4480,3686,4090,3431,3692,2755,2632,2349,2146,1727,1668,1181,1130,666,737,471,346,104,43,14,12,2,14],"100":[0,0,0,0,0,0,0,0,0,0,19,20,16,15,20,19,20,11,31,24,17,22,37,45,29,35,38,45,50,53,50,59,66,79,76,90,111,81,96,94,108,131,145,141,167,183,200,177,216,214,237,280,295,354,410,447,487,602,645,664,640,821,986,1074,1204,1372,1387,1518,1533,1535,1651,1838,1784,1874,1777,1761,1701,1533,1369,1230,1198,1209,1020,789,717,625,519,380,268,199,166,117,107,69,52,29,10,5,1,0,0],"500":[0,0,0,0,0,0,0,0,0,0,13,9,3,6,6,6,4,6,10,3,8,6,11,9,8,8,14,11,13,10,12,17,21,25,20,27,30,25,30,28,19,31,33,47,46,54,56,46,56,56,59,76,86,113,125,142,153,189,217,218,220,309,359,433,498,539,595,639,692,635,734,879,825,891,856,869,832,748,673,572,578,623,554,416,404,353,275,206,141,86,82,55,54,32,26,13,4,2,1,0,0],"1000":[0,0,0,0,0,0,0,0,0,0,4,4,3,3,2,2,3,4,6,2,5,4,7,2,4,6,6,1,5,6,7,9,14,17,11,15,21,10,16,15,10,19,13,23,23,29,30,25,35,30,31,44,37,59,64,87,79,113,132,132,122,179,212,260,305,358,396,414,478,416,501,598,567,635,624,621,610,538,502,426,454,457,423,315,312,266,206,157,99,55,71,38,36,16,21,8,4,1,1,0,0],"5000":[0,0,0,0,0,0,0,0,0,0,1,2,2,0,0,1,0,2,1,0,0,0,0,1,1,1,1,0,1,4,0,1,1,2,1,5,4,1,3,4,3,3,3,6,4,6,6,3,6,4,8,13,6,13,11,17,24,19,25,28,33,51,51,66,68,90,104,127,144,123,179,201,198,254,239,264,266,209,209,193,211,211,209,159,166,161,106,75,46,27,36,13,15,8,4,2,0,0,0,0,0],"10000":[0,0,0,0,0,0,0,0,0,0,0,2,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,2,0,0,1,0,0,1,4,0,0,1,1,2,3,3,1,2,3,2,4,2,4,5,4,5,4,9,11,6,12,11,13,20,18,24,27,44,54,65,78,55,93,113,101,145,145,160,155,142,141,126,137,143,141,114,119,121,85,55,31,20,32,11,9,5,4,1,0,0,0,0,0],"50000":[0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,0,1,0,1,0,0,1,0,0,1,2,1,0,3,0,3,6,2,7,13,4,10,14,17,21,28,25,36,34,35,38,35,45,44,43,46,52,40,35,21,10,20,5,6,5,3,1,0,0,0,0,0],"100000":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,2,0,2,1,0,3,4,1,2,5,3,7,12,13,9,9,15,17,22,23,24,29,30,28,27,25,15,7,14,3,4,3,3,1,0,0,0,0,0]}},"cutoff_counts":{"movies":{"0":{"rated_titles":345360,"rating_at_least_6.5":151912,"rating_at_least_7.0":100093,"rating_at_least_7.5":57250,"rating_at_least_8.0":30256,"rating_at_least_8.5":13613,"rating_at_least_9.0":4545},"100":{"rated_titles":146912,"rating_at_least_6.5":54094,"rating_at_least_7.0":30096,"rating_at_least_7.5":12685,"rating_at_least_8.0":4425,"rating_at_least_8.5":1389,"rating_at_least_9.0":404},"500":{"rated_titles":70946,"rating_at_least_6.5":30868,"rating_at_least_7.0":17804,"rating_at_least_7.5":7474,"rating_at_least_8.0":2384,"rating_at_least_8.5":607,"rating_at_least_9.0":154},"1000":{"rated_titles":49269,"rating_at_least_6.5":23670,"rating_at_least_7.0":14113,"rating_at_least_7.5":5987,"rating_at_least_8.0":1846,"rating_at_least_8.5":404,"rating_at_least_9.0":77},"5000":{"rated_titles":19172,"rating_at_least_6.5":10698,"rating_at_least_7.0":7015,"rating_at_least_7.5":3295,"rating_at_least_8.0":1024,"rating_at_least_8.5":159,"rating_at_least_9.0":17},"10000":{"rated_titles":12635,"rating_at_least_6.5":7396,"rating_at_least_7.0":4946,"rating_at_least_7.5":2451,"rating_at_least_8.0":787,"rating_at_least_8.5":118,"rating_at_least_9.0":11},"50000":{"rated_titles":4674,"rating_at_least_6.5":3151,"rating_at_least_7.0":2149,"rating_at_least_7.5":1171,"rating_at_least_8.0":431,"rating_at_least_8.5":60,"rating_at_least_9.0":7},"100000":{"rated_titles":2755,"rating_at_least_6.5":2070,"rating_at_least_7.0":1489,"rating_at_least_7.5":838,"rating_at_least_8.0":328,"rating_at_least_8.5":55,"rating_at_least_9.0":7}},"tv":{"0":{"rated_titles":139913,"rating_at_least_6.5":95216,"rating_at_least_7.0":75319,"rating_at_least_7.5":51163,"rating_at_least_8.0":29210,"rating_at_least_8.5":12610,"rating_at_least_9.0":3539},"100":{"rated_titles":43539,"rating_at_least_6.5":31343,"rating_at_least_7.0":23998,"rating_at_least_7.5":15074,"rating_at_least_8.0":7480,"rating_at_least_8.5":2547,"rating_at_least_9.0":556},"500":{"rated_titles":18924,"rating_at_least_6.5":14884,"rating_at_least_7.0":11784,"rating_at_least_7.5":7599,"rating_at_least_8.0":3905,"rating_at_least_8.5":1330,"rating_at_least_9.0":269},"1000":{"rated_titles":12931,"rating_at_least_6.5":10624,"rating_at_least_7.0":8562,"rating_at_least_7.5":5637,"rating_at_least_8.0":2940,"rating_at_least_8.5":979,"rating_at_least_9.0":196},"5000":{"rated_titles":4766,"rating_at_least_6.5":4249,"rating_at_least_7.0":3661,"rating_at_least_7.5":2590,"rating_at_least_8.0":1449,"rating_at_least_8.5":493,"rating_at_least_9.0":78},"10000":{"rated_titles":2857,"rating_at_least_6.5":2645,"rating_at_least_7.0":2349,"rating_at_least_7.5":1752,"rating_at_least_8.0":1028,"rating_at_least_8.5":374,"rating_at_least_9.0":62},"50000":{"rated_titles":721,"rating_at_least_6.5":701,"rating_at_least_7.0":669,"rating_at_least_7.5":579,"rating_at_least_8.0":411,"rating_at_least_8.5":198,"rating_at_least_9.0":40},"100000":{"rated_titles":367,"rating_at_least_6.5":359,"rating_at_least_7.0":350,"rating_at_least_7.5":321,"rating_at_least_8.0":258,"rating_at_least_8.5":130,"rating_at_least_9.0":28}}}}</script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script>
+  (() => {
+    const root = document.getElementById('imdb-rating-census');
+    const data = JSON.parse(root.querySelector('#census-data').textContent);
+    const votesControl = root.querySelector('#census-votes');
+    const cutoffControl = root.querySelector('#census-cutoff');
+    const tooltip = root.querySelector('.census-tooltip');
+    const fmt = new Intl.NumberFormat('en-US');
+    const groups = ['movies', 'tv'];
+    const colors = { movies: 'var(--viz-series-1)', tv: 'var(--viz-series-2)' };
+    const saved = window.openai?.widgetState?.modelContent;
+    let state = { votes: 0, cutoff: 7 };
+    function restore(candidate) {
+      if (!candidate || typeof candidate !== 'object') return;
+      if (data.minimum_vote_options.includes(Number(candidate.minimumVotes))) state.votes = Number(candidate.minimumVotes);
+      if (Number.isFinite(candidate.minimumRating) && candidate.minimumRating >= 1 && candidate.minimumRating <= 10) state.cutoff = candidate.minimumRating;
+    }
+    restore(saved);
+    function histogram(group) { return data.histograms[group][String(state.votes)]; }
+    function total(array) { return array.reduce((a,b) => a+b, 0); }
+    function passing(group) { return total(histogram(group).slice(Math.round(state.cutoff * 10))); }
+    function persist() {
+      if (window.openai?.setWidgetState) window.openai.setWidgetState({ modelContent: { minimumVotes: state.votes, minimumRating: state.cutoff, moviesPassing: passing('movies'), televisionPassing: passing('tv') }, privateContent: null }).catch(() => {});
+    }
+    function draw(animate = false) {
+      votesControl.value = String(state.votes);
+      cutoffControl.value = String(state.cutoff);
+      root.querySelector('#census-cutoff-value').textContent = state.cutoff.toFixed(1);
+      const observed = groups.flatMap(group => histogram(group).flatMap((n,i) => n ? [{ x:i/10, y:100*n/total(histogram(group)) }] : []));
+      const xExtent = d3.extent(observed, d => d.x);
+      const xDomain = [Math.min(xExtent[0],1,state.cutoff)-.05, Math.max(xExtent[1],10,state.cutoff)+.05];
+      const sharedYMax = (d3.max(observed, d => d.y) || 1) * 1.12;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      for (const group of groups) {
+        const counts = histogram(group);
+        const n = total(counts);
+        const survivors = passing(group);
+        root.querySelector('#census-' + group + '-count').textContent = fmt.format(n) + ' rated titles · ' + fmt.format(survivors) + ' at ≥ ' + state.cutoff.toFixed(1);
+        const element = root.querySelector('#census-' + group + '-plot');
+        const width = Math.max(260, element.parentElement.getBoundingClientRect().width);
+        const height = 300;
+        const margin = { left:64, right:18, top:24, bottom:56 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+        const svg = d3.select(element).attr('viewBox', [0,0,width,height]).attr('height', height);
+        svg.selectAll('*').remove();
+        svg.append('title').text((group === 'movies' ? 'Movies' : 'TV series and miniseries') + ': IMDb rating distribution');
+        svg.append('desc').text('Each bar counts titles with one average rating, in steps of 0.1. Vertical axis is the percentage of eligible titles. Ratings at least ' + state.cutoff.toFixed(1) + ' are highlighted. ' + fmt.format(survivors) + ' of ' + fmt.format(n) + ' titles meet that cutoff.');
+        const x = d3.scaleLinear().domain(xDomain).range([margin.left, width-margin.right]);
+        const y = d3.scaleLinear().domain([0,sharedYMax]).nice().range([height-margin.bottom, margin.top]);
+        svg.append('g').attr('transform','translate(0,'+(height-margin.bottom)+')').call(d3.axisBottom(x).tickValues(width<420 ? [1,4,7,10] : [1,2,4,6,8,10]).tickFormat(d3.format('d')).tickSizeOuter(0));
+        svg.append('g').attr('transform','translate('+margin.left+',0)').call(d3.axisLeft(y).ticks(4).tickFormat(v => d3.format('.1~f')(v)+'%').tickSizeOuter(0));
+        svg.append('g').attr('stroke','var(--border)').attr('stroke-width',1).attr('opacity',.5).selectAll('line').data(y.ticks(4).filter(v=>v>0)).join('line').attr('x1',margin.left).attr('x2',width-margin.right).attr('y1',d=>y(d)).attr('y2',d=>y(d));
+        svg.append('rect').attr('data-chart-frame','').attr('x',margin.left).attr('y',margin.top).attr('width',innerWidth).attr('height',innerHeight).attr('fill','none').attr('stroke','var(--border)').attr('stroke-width',1);
+        const bins = counts.map((count,i)=>({rating:i/10,count,percent:n ? count/n*100 : 0})).filter(d=>d.rating>=1);
+        const barWidth = Math.max(1, x(1.05)-x(.95)-.4);
+        const bars = svg.append('g').selectAll('rect').data(bins).join('rect').attr('x',d=>x(d.rating)-barWidth/2).attr('width',barWidth).attr('y',d=>y(d.percent)).attr('height',d=>y(0)-y(d.percent)).attr('fill',colors[group]).attr('opacity',d=>d.rating>=state.cutoff-.001 ? .95 : .23);
+
+        svg.append('line').attr('x1',x(state.cutoff)).attr('x2',x(state.cutoff)).attr('y1',margin.top).attr('y2',height-margin.bottom).attr('stroke','var(--foreground)').attr('stroke-width',1).attr('stroke-dasharray','3 4');
+        svg.append('text').attr('class','axis-title').attr('data-axis','x').attr('x',(margin.left+width-margin.right)/2).attr('y',height-10).attr('text-anchor','middle').text('Average IMDb rating / 10');
+        svg.append('text').attr('class','axis-title').attr('data-axis','y').attr('x',margin.left).attr('y',12).text('Share of titles (%)');
+        const hoverBar = svg.append('rect').attr('fill','var(--foreground)').attr('opacity',.08).attr('width',barWidth+2).attr('y',margin.top).attr('height',innerHeight).attr('visibility','hidden');
+        const showTooltip = event => {
+          const [px] = d3.pointer(event,element);
+          const ratingIndex = Math.max(10,Math.min(100,Math.round(x.invert(px)*10)));
+          const count = counts[ratingIndex];
+          const percent = n ? 100*count/n : 0;
+          hoverBar.attr('x',x(ratingIndex/10)-(barWidth+2)/2).attr('visibility','visible');
+          tooltip.textContent = (ratingIndex/10).toFixed(1) + ' / 10 · ' + fmt.format(count) + ' titles · ' + percent.toFixed(2) + '%';
+          tooltip.hidden = false;
+          const rect = root.getBoundingClientRect();
+          tooltip.style.left = Math.min(Math.max(0,event.clientX-rect.left+12),Math.max(0,rect.width-tooltip.offsetWidth)) + 'px';
+          tooltip.style.top = Math.max(0,event.clientY-rect.top-tooltip.offsetHeight-14) + 'px';
+        };
+        svg.append('rect').attr('data-chart-hit','').attr('x',margin.left).attr('y',margin.top).attr('width',innerWidth).attr('height',innerHeight).attr('fill','transparent').on('pointermove',showTooltip).on('pointerdown',showTooltip).on('pointerleave',()=>{ tooltip.hidden=true; hoverBar.attr('visibility','hidden'); });
+      }
+      const sum = passing('movies') + passing('tv');
+      root.querySelector('#census-result').textContent = 'At ≥ ' + state.cutoff.toFixed(1) + ' / 10' + (state.votes ? ' and ≥ ' + fmt.format(state.votes) + ' votes' : ', across all vote counts') + ': ' + fmt.format(sum) + ' titles qualify.';
+      root.querySelector('#census-note').textContent = 'IMDb snapshot: ' + data.sources[0].last_modified.slice(5,16) + '. One title per observation; same percentage scale in both panels. Non-adult movies, series and miniseries; all years and genres. Episodes, shorts, TV movies and unrated titles excluded.';
+    }
+    votesControl.addEventListener('change',()=>{ state.votes=Number(votesControl.value); draw(true); persist(); });
+    cutoffControl.addEventListener('input',()=>{ state.cutoff=Number(cutoffControl.value); draw(); persist(); });
+    window.addEventListener('openai:set_globals',event=>{
+      const next=event.detail?.globals?.widgetState?.modelContent;
+      if (next) { restore(next); draw(); }
+    });
+    let lastWidth=0;
+    new ResizeObserver(entries=>{ const width=Math.round(entries[0].contentRect.width); if (width!==lastWidth) { lastWidth=width; draw(); } }).observe(root);
+    draw();
+  })();
+  </script>
+</div>

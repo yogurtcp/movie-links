@@ -1,0 +1,9 @@
+{
+  "name": "watch-map",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Explore films and television through the qualities they share.",
+  "scripts": { "dev": "node server.mjs", "start": "node server.mjs" },
+  "engines": { "node": ">=18" }
+}

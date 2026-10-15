@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-10-15T14:19:05.048918+00:00",
+  "profiled_titles": 2895,
+  "candidate_connections": 104002,
+  "dimensions": 22,
+  "hidden_spoiler_families": [
+    "character_arc",
+    "mystery",
+    "resolution",
+    "tragedy"
+  ],
+  "method": "Shared provisional semantic positions; up to three ranked neighbors per title per family. Ending outcomes are excluded.",
+  "note": "Rankings are not probabilities. Unreviewed candidates are not validated recommendations."
+}

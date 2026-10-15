@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore the selected Watch Map catalog of movies and TV series.">
+  <title>Watch Map — explore titles</title>
+  <link rel="stylesheet" href="/browse.css">
+  <script type="module" src="/browse.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/">watch map<span class="brand-dot" aria-hidden="true"></span></a><nav aria-label="Main navigation"><a href="/graph">Graph search</a><a href="/explore" aria-current="page">Catalog & profiles</a><a href="/ratings">Ratings ↗</a></nav><span class="local-label">LOCAL CATALOG</span></header>
+  <main>
+    <section class="intro"><div><p class="eyebrow">YOUR NEXT WATCH STARTS SOMEWHERE</p><h1>A collection worth exploring.</h1><p class="intro-description">Search the selected movies and series. Keep track of what you’ve seen and what caught your eye.</p></div><div class="scope"><span>IMDb selection · 15 October 2026</span><strong>50,000+ votes</strong><span>Movies ≥ 6.8 · Series ≥ 8.1</span></div></section>
+    <section class="filters" aria-label="Catalog filters">
+      <label class="search-field"><span class="field-label">FIND A TITLE</span><input type="search" id="search" placeholder="Search movies and series…" autocomplete="off"></label>
+      <label><span class="field-label">FORMAT</span><select id="type"><option value="all">Movies & series</option><option value="movies">Movies</option><option value="tv">Series & miniseries</option></select></label>
+      <label><span class="field-label">GENRE</span><select id="genre"><option value="">All genres</option></select></label>
+      <label><span class="field-label">YOUR LIBRARY</span><select id="library"><option value="all">All titles</option><option value="unseen">Not seen yet</option><option value="seen">Seen</option><option value="watchlist">Watchlist</option></select></label>
+      <label><span class="field-label">SORT BY</span><select id="sort"><option value="votes">Most votes</option><option value="rating">Highest rating</option><option value="year">Newest first</option><option value="oldest">Oldest first</option><option value="title">Title A–Z</option></select></label>
+    </section>
+    <div class="results-bar"><div id="result-count" role="status" aria-live="polite">Loading the local catalog…</div><label class="profile-filter"><input type="checkbox" id="profiled"> With derived profiles</label><div class="library-counts" id="library-counts"></div></div>
+    <div id="error" class="error" role="alert" hidden></div>
+    <div class="catalog-layout">
+      <section class="results" aria-label="Matching titles"><div class="column-headings" aria-hidden="true"><span>TITLE</span><span>RATING</span><span>VOTES</span></div><div id="title-list" aria-busy="true"></div><div class="pagination"><button id="previous" disabled>← Previous</button><span id="page-label"></span><button id="next" disabled>Next →</button></div></section>
+      <aside class="detail" id="detail" aria-label="Selected title"><p class="empty-detail">Choose a title to see its details.</p></aside>
+    </div>
+    <footer><span>Follow spoiler-filtered semantic connections in Graph search. Candidate links are provisional and need review.</span><span id="save-status" role="status" aria-live="polite">Your library is saved in the local SQLite database.</span></footer>
+  </main>
+</body>
+</html>

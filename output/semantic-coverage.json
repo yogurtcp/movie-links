@@ -1,0 +1,229 @@
+{
+  "generated_at": "2026-10-15T14:18:25.660905+00:00",
+  "scope_titles": 2895,
+  "profile_status_counts": {
+    "provisional": 2894,
+    "source_assessed": 1
+  },
+  "dimension_records": 75270,
+  "processed_title_dimension_records": 75270,
+  "expected_title_dimension_records": 75270,
+  "titles_with_all_dimensions_unknown": 1,
+  "current_claims": 59569,
+  "claims_with_cited_passages": 105,
+  "families": [
+    {
+      "dimension": "resolution",
+      "name": "Ambiguity and resolution",
+      "counts": {
+        "provisional": 1951,
+        "unknown": 944
+      }
+    },
+    {
+      "dimension": "atmosphere",
+      "name": "Atmosphere",
+      "counts": {
+        "provisional": 2205,
+        "unknown": 690
+      }
+    },
+    {
+      "dimension": "character",
+      "name": "Character construction",
+      "counts": {
+        "provisional": 2633,
+        "unknown": 262
+      }
+    },
+    {
+      "dimension": "character_arc",
+      "name": "Character development",
+      "counts": {
+        "provisional": 1931,
+        "unknown": 964
+      }
+    },
+    {
+      "dimension": "relationships",
+      "name": "Character relationships",
+      "counts": {
+        "provisional": 2731,
+        "unknown": 164
+      }
+    },
+    {
+      "dimension": "dialogue",
+      "name": "Dialogue and performance",
+      "counts": {
+        "provisional": 1669,
+        "unknown": 1226
+      }
+    },
+    {
+      "dimension": "combinations",
+      "name": "Distinctive combinations",
+      "counts": {
+        "provisional": 1569,
+        "source_supported": 1,
+        "unknown": 1325
+      }
+    },
+    {
+      "dimension": "emotion",
+      "name": "Emotional experience",
+      "counts": {
+        "provisional": 2803,
+        "unknown": 92
+      }
+    },
+    {
+      "dimension": "emotional_progression",
+      "name": "Emotional progression",
+      "counts": {
+        "provisional": 1648,
+        "unknown": 1247
+      }
+    },
+    {
+      "dimension": "ensemble",
+      "name": "Ensemble dynamics",
+      "counts": {
+        "provisional": 2017,
+        "unknown": 878
+      }
+    },
+    {
+      "dimension": "humor",
+      "name": "Humor mechanisms",
+      "counts": {
+        "provisional": 1986,
+        "unknown": 909
+      }
+    },
+    {
+      "dimension": "mystery",
+      "name": "Mystery and revelation",
+      "counts": {
+        "provisional": 1751,
+        "unknown": 1144
+      }
+    },
+    {
+      "dimension": "structure",
+      "name": "Narrative structure",
+      "counts": {
+        "provisional": 1999,
+        "unknown": 896
+      }
+    },
+    {
+      "dimension": "pacing",
+      "name": "Pacing and payoff",
+      "counts": {
+        "provisional": 1638,
+        "unknown": 1257
+      }
+    },
+    {
+      "dimension": "power",
+      "name": "Power dynamics",
+      "counts": {
+        "provisional": 2466,
+        "unknown": 429
+      }
+    },
+    {
+      "dimension": "stakes",
+      "name": "Scale and stakes",
+      "counts": {
+        "provisional": 1898,
+        "source_supported": 2,
+        "unknown": 995
+      }
+    },
+    {
+      "dimension": "sound",
+      "name": "Sound and music",
+      "counts": {
+        "provisional": 1619,
+        "unknown": 1276
+      }
+    },
+    {
+      "dimension": "conflict",
+      "name": "Sources of conflict",
+      "counts": {
+        "provisional": 2234,
+        "source_supported": 1,
+        "unknown": 660
+      }
+    },
+    {
+      "dimension": "story_engine",
+      "name": "Story mechanics",
+      "counts": {
+        "provisional": 2882,
+        "unknown": 13
+      }
+    },
+    {
+      "dimension": "tragedy",
+      "name": "Suffering and tragedy",
+      "counts": {
+        "provisional": 1735,
+        "unknown": 1160
+      }
+    },
+    {
+      "dimension": "themes",
+      "name": "Themes and questions",
+      "counts": {
+        "provisional": 2880,
+        "unknown": 15
+      }
+    },
+    {
+      "dimension": "viewer_contract",
+      "name": "Viewing experience",
+      "counts": {
+        "provisional": 2403,
+        "unknown": 492
+      }
+    },
+    {
+      "dimension": "visual_style",
+      "name": "Visual storytelling",
+      "counts": {
+        "provisional": 1766,
+        "unknown": 1129
+      }
+    },
+    {
+      "dimension": "world",
+      "name": "World and setting",
+      "counts": {
+        "provisional": 2730,
+        "source_supported": 1,
+        "unknown": 164
+      }
+    },
+    {
+      "dimension": "world_rules",
+      "name": "World rules",
+      "counts": {
+        "provisional": 2837,
+        "unknown": 58
+      }
+    },
+    {
+      "dimension": "worldview",
+      "name": "Worldview",
+      "counts": {
+        "provisional": 1910,
+        "unknown": 985
+      }
+    }
+  ],
+  "review_note": "A completed pass includes unknown assessments. Generated positions are provisional model interpretations, not source-verified ratings. Connections require separate review."
+}

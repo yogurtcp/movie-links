@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Find your next film or series by following the qualities that stayed with you.">
+  <title>Watch Map — follow a feeling</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23292624'/%3E%3Ccircle cx='20' cy='20' r='8' fill='%23e99c6a'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="Watch Map home"><span class="brand-mark" aria-hidden="true">w<span>•</span></span>watch map<span class="edition">a first exploration</span></a>
+    <button class="quiet-button" id="open-library">Your library <span id="library-count">0</span></button>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div><div class="eyebrow">FILM & TELEVISION, CONNECTED</div><h1 id="page-title">Follow what stayed with you.</h1><p>Start somewhere familiar. Find a connection worth following.</p></div>
+      <div class="catalog-note"><span class="live-dot"></span><span id="catalog-count"></span><span>Curated starter catalog · interpretive connections</span></div>
+    </section>
+    <div class="workspace">
+      <aside class="sidebar" aria-label="Explore connections">
+        <label class="field-label" for="seed">YOUR STARTING POINT</label>
+        <select id="seed"></select>
+        <label class="seen-seed"><input type="checkbox" id="seed-seen"> I’ve seen this</label>
+        <div class="sidebar-heading"><h2>Follow a connection</h2><span>12 dimensions</span></div>
+        <nav id="lenses" aria-label="Connection dimensions"></nav>
+        <div class="sidebar-options">
+          <label class="field-label" for="format">SHOW ME</label>
+          <select id="format"><option value="all">Films & series</option><option value="film">Films only</option><option value="series">Series only</option></select>
+          <label class="seen-seed"><input type="checkbox" id="hide-seen" checked> Hide titles I’ve seen</label>
+        </div>
+        <details class="method"><summary>About these connections</summary><p>This is a small, manually described catalog. Traits are editorial interpretations, not measured scores. Connections come from shared traits; a match does not guarantee you’ll enjoy a title.</p><p>No live rating cutoff is applied. Series profiles describe their overall tendencies; seasons can differ. The trilogy entry groups three films.</p><p>Seen titles and your watchlist stay in this browser. Export them from your library to keep a copy.</p></details>
+      </aside>
+      <section class="explorer" aria-label="Title connection map">
+        <div class="map-toolbar"><nav id="trail" aria-label="Your exploration path"></nav><div class="map-key"><span></span> shared qualities, different stories</div></div>
+        <div class="active-filters" id="active-filters" hidden></div>
+        <div class="map-heading"><div><div class="eyebrow" id="route-label">DIFFERENT DIRECTIONS</div><h2 id="map-title"></h2></div><div class="map-meta" id="map-meta" role="status" aria-live="polite"></div></div>
+        <div class="graph-container" id="graph-container"><svg id="graph" role="group" aria-label="Titles connected by shared traits"></svg><div id="empty" hidden><h3>No connections in this corner yet.</h3><p id="empty-reason"></p><button id="clear-filters" class="primary-button">Show different directions</button></div></div>
+        <div class="map-caption"><span>Choose a title to inspect the connection. Explore from it to keep going.</span><span id="catalog-size"></span></div>
+        <section class="connection-detail" id="connection-detail" aria-label="Selected connection" hidden></section>
+        <section class="profile" aria-labelledby="profile-title"><div class="profile-heading"><div><div class="eyebrow">LOOK A LITTLE CLOSER</div><h2 id="profile-title"></h2></div><p>Select traits to find titles that share <strong>all</strong> of them.</p></div><div id="profile-grid" class="profile-grid"></div></section>
+      </section>
+    </div>
+    <footer><span>A map of possibilities. Your taste is the compass.</span><button class="text-button" id="open-notes">Data & next steps</button></footer>
+  </main>
+  <dialog id="library-dialog"><div class="dialog-heading"><div><div class="eyebrow">YOUR LIBRARY</div><h2>Keep familiar things out of the way.</h2></div><button class="quiet-button" data-close="library-dialog" aria-label="Close library">Close</button></div><p class="muted">Your seen titles and watchlist are saved locally in this browser.</p><label class="field-label" for="library-search">FIND A TITLE IN THE STARTER CATALOG</label><input id="library-search" type="search" placeholder="Search by title…"><div class="library-tabs"><button class="tab active" data-tab="all">All titles</button><button class="tab" data-tab="seen">Seen</button><button class="tab" data-tab="saved">Watchlist</button></div><div id="library-list"></div><div class="dialog-actions"><button class="quiet-button" id="export-library">Export library</button><label class="quiet-button import-label">Import library<input id="import-library" type="file" accept="application/json,.json"></label></div><p id="library-status" role="status" aria-live="polite"></p></dialog>
+  <dialog id="notes-dialog"><div class="dialog-heading"><h2>From a first map to a bigger one</h2><button class="quiet-button" data-close="notes-dialog">Close</button></div><p>This prototype asks whether named, explorable connections are more useful than a generic list of similar titles. The catalog has 12 descriptive dimensions for every title. The graph offers different routes; choose a dimension for a closer comparison.</p><h3>What is real here?</h3><p>The titles are real. Their trait profiles are editorial interpretations made for this prototype. A connection means the two profiles share a phrase. The ranking favors more distinctive shared phrases; it is not a probability or a prediction of your rating.</p><h3>What makes a bigger map useful?</h3><p>A much larger catalog, source-backed descriptions, confidence for each trait, and feedback on which connections actually work for you. A rating threshold should consider vote counts and allow exceptions for niche titles. Series need season-level descriptions where they change substantially.</p><h3>Useful existing pieces</h3><p><a href="https://www.cinnamondb.com/about" target="_blank" rel="noreferrer">Cinnamon DB</a> describes 20 emotional dimensions for films and shows. <a href="https://www.criticker.com/" target="_blank" rel="noreferrer">Criticker</a> recommends from users with compatible ratings. <a href="https://grouplens.org/datasets/movielens/tag-genome-2021/" target="_blank" rel="noreferrer">MovieLens Tag Genome 2021</a> contains 1,084 tags for 9,734 movies. None of those datasets powers this prototype.</p><p class="muted">Descriptions of external tools were checked on 15 October 2026.</p></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

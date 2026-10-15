@@ -1,0 +1,61 @@
+{
+  "generated_at": "2026-10-15T08:17:36.073313+00:00",
+  "database": "data/watch-map.sqlite3",
+  "selection": {
+    "movies": {
+      "eligible_before_rating_cutoff": 4674,
+      "median_rating": 6.8,
+      "selected_count": 2519
+    },
+    "tv": {
+      "eligible_before_rating_cutoff": 721,
+      "median_rating": 8.1,
+      "selected_count": 376
+    }
+  },
+  "title_counts": {
+    "movie": 2519,
+    "tvMiniSeries": 37,
+    "tvSeries": 339
+  },
+  "source_coverage": [
+    {
+      "title_group": "movies",
+      "tvmaze_status": "not_attempted",
+      "titles": 2519,
+      "with_summary": 0
+    },
+    {
+      "title_group": "tv",
+      "tvmaze_status": "found",
+      "titles": 368,
+      "with_summary": 368
+    },
+    {
+      "title_group": "tv",
+      "tvmaze_status": "not_found",
+      "titles": 8,
+      "with_summary": 0
+    }
+  ],
+  "tvmaze_summary_lengths": {
+    "found": 368,
+    "empty": 0,
+    "under_300_characters": 148,
+    "at_least_300_characters": 220
+  },
+  "dimensions_available": 26,
+  "attributes_extracted": 105,
+  "source_document_counts": {
+    "tvmaze": 368,
+    "wikipedia_intro": 1300
+  },
+  "connections_analyzed": 0,
+  "integrity": "ok",
+  "notes": [
+    "TVmaze lookup uses exact IMDb identifiers.",
+    "The per-title coverage view is specific to TVmaze. Other providers are counted separately.",
+    "A summary being present does not establish sufficient evidence for detailed attributes.",
+    "No attributes or connections have been inferred from IMDb genres or model memory."
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "source_snapshot": [
+    {
+      "url": "https://datasets.imdbws.com/title.ratings.tsv.gz",
+      "last_modified": "Thu, 15 Oct 2026 00:44:53 GMT",
+      "downloaded_at": "2026-10-15T05:57:56.862449+00:00",
+      "bytes": 8695482
+    },
+    {
+      "url": "https://datasets.imdbws.com/title.basics.tsv.gz",
+      "last_modified": "Thu, 15 Oct 2026 00:43:44 GMT",
+      "downloaded_at": "2026-10-15T05:57:56.867500+00:00",
+      "bytes": 228645881
+    }
+  ],
+  "base_scope": {
+    "movies": [
+      "movie"
+    ],
+    "tv": [
+      "tvSeries",
+      "tvMiniSeries"
+    ],
+    "isAdult": "0",
+    "years": "all",
+    "genres": "all",
+    "countries": "all",
+    "unrated": "excluded from distributions"
+  },
+  "minimum_votes_inclusive": 50000,
+  "rating_comparison": ">=",
+  "median_population": "Calculated separately for movies and TV series/miniseries, after applying the minimum vote threshold",
+  "groups": {
+    "movies": {
+      "eligible_before_rating_cutoff": 4674,
+      "median_rating": 6.8,
+      "selected_count": 2519
+    },
+    "tv": {
+      "eligible_before_rating_cutoff": 721,
+      "median_rating": 8.1,
+      "selected_count": 376
+    }
+  },
+  "selected_type_counts": {
+    "movie": 2519,
+    "tvSeries": 339,
+    "tvMiniSeries": 37
+  },
+  "selected_total": 2895,
+  "title_file": "analysis-titles-50k-median.csv"
+}

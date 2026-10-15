@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-10-15T14:17:59.463868+00:00",
+  "profile_status_counts": {
+    "provisional": 2894,
+    "source_assessed": 1
+  },
+  "dimension_status_counts": {
+    "provisional": 55891,
+    "source_supported": 5,
+    "unknown": 19374
+  },
+  "dimension_count": 26,
+  "note": "Initialized unknown positions are coverage records, not derived profiles. Source-supported descriptions still require interpretive review."
+}
