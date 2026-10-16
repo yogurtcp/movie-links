@@ -26,7 +26,7 @@ Requirements: Node.js 18+ for the local app, Python 3.10+ for catalog and graph 
 npm start
 ```
 
-Open [http://localhost:4173](http://localhost:4173). Use **Explore** to search the catalog, **Graph** to follow connections or compare two titles, and **Ratings** for IMDb score distributions. Your seen and watchlist choices are saved in the local SQLite database. The server listens on loopback only.
+Open [http://localhost:4173](http://localhost:4173). If that port is already used by another local app, run `PORT=4174 npm start` and open [http://localhost:4174](http://localhost:4174). Use **Explore** to search the catalog, **Graph** to follow connections or compare two titles, and **Ratings** for IMDb score distributions. Your seen and watchlist choices are saved in the local SQLite database. The server listens on loopback only.
 
 ## Restore catalog and graph data
 
