@@ -1,9 +1,16 @@
 {
-  "name": "watch-map",
+  "name": "movie-links",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Explore films and television through the qualities they share.",
-  "scripts": { "dev": "node server.mjs", "start": "node server.mjs" },
-  "engines": { "node": ">=18" }
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "build:hosted": "python3 analysis/export_hosted.py",
+    "check:hosted": "node analysis/check_hosted.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }

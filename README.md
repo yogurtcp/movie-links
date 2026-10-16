@@ -1,6 +1,10 @@
-# Watch Map
+# Movie Links
 
-Watch Map helps explore IMDb-listed movies and TV series through qualities they share: character dynamics, story mechanics, emotional experience, humor, worldview, visual style, pacing, and more. Choose a familiar title, follow labeled links, and compare a pair directly.
+**[Open Movie Links](https://movie-links.yogurt-co.chatgpt.site)** · [Graph search](https://movie-links.yogurt-co.chatgpt.site/graph/) · [Catalog](https://movie-links.yogurt-co.chatgpt.site/explore/)
+
+The hosted app requires the owner’s ChatGPT sign-in. Seen titles, watchlist choices, and connection feedback are stored in your browser.
+
+Movie Links helps explore IMDb-listed movies and TV series through qualities they share: character dynamics, story mechanics, emotional experience, humor, worldview, visual style, pacing, and more. Choose a familiar title, follow labeled links, and compare a pair directly.
 
 ## Current scope
 
@@ -16,7 +20,7 @@ Episodes, shorts, TV movies and unrated titles are excluded. All years and genre
 
 The graph uses 26 descriptive families for its internal profiles. Its browsing and recommendation views expose 22 families; ending outcomes, character destinations, mystery reveals and tragic events are omitted to reduce spoilers. Plot descriptions and profile summaries stay collapsed until opened with a spoiler warning. Source passages are never shown inline. See [`docs/graph-method.md`](docs/graph-method.md) for the retrieval rules and limits.
 
-Profile positions are provisional model interpretations, not source-verified ratings. Unknown means this pass did not assign a position; it does not mean the title lacks the quality. Candidate links need individual review and do not predict whether you will enjoy a title. See [`docs/taxonomy-guide.md`](docs/taxonomy-guide.md) for distinctions between labels.
+The full first pass covers **2,895 titles**, with **104,002 candidate connections** across the 22 visible families. Profile positions are provisional model interpretations, not source-verified ratings. Unknown means this pass did not assign a position; it does not mean the title lacks the quality. Candidate links need individual review and do not predict whether you will enjoy a title. See [`docs/taxonomy-guide.md`](docs/taxonomy-guide.md) for distinctions between labels.
 
 ## Run the app
 
@@ -64,3 +68,9 @@ The optional TVmaze source-coverage audit can be run with `python3 analysis/data
 ## Data and attribution
 
 IMDb datasets are governed by [IMDb's non-commercial dataset terms](https://data.imdb.com/non-commercial-datasets/). TVmaze summaries are attributed to their original title pages and subject to [TVmaze API terms](https://www.tvmaze.com/api), including attribution and ShareAlike requirements. Wikipedia text is collected locally with source URL and revision metadata under [Wikipedia's licensing terms](https://en.wikipedia.org/wiki/Wikipedia:Copyrights). Third-party raw source dumps, ratings/votes, the SQLite database and personal seen/watchlist records are not included in this repository.
+
+## Hosted build
+
+Run `npm run build:hosted` after restoring or updating the local catalog and graph, followed by `npm run check:hosted`. It creates `dist/` with the complete catalog, spoiler-filtered profiles, and compact graph data. Personal library records and prior personal feedback are excluded. The hosted version runs in the browser and stores new library choices and connection feedback in browser storage. The local Node/Python server continues to use SQLite.
+
+Sites hosting configuration is tracked in `.openai/hosting.json`. The generated `dist/` directory and its IMDb-derived catalog stay out of the public GitHub source tree.

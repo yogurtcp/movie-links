@@ -16,3 +16,5 @@ data/profile-input/
 data/profile-batches/
 output/title-profiles.csv
 analysis/annotations/source-pilot.tsv
+
+dist/

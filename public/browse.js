@@ -70,9 +70,7 @@ function renderDetail() {
 }
 async function loadProfile(identifier,panel) {
   try {
-    const response=await fetch('/api/profile?id='+encodeURIComponent(identifier));
-    const body=await response.json();
-    if(!response.ok)throw new Error(body.error||'Could not load profile');
+    const body=await globalThis.MovieLinksAPI.request('/api/profile?id='+encodeURIComponent(identifier));
     if(selectedId!==identifier||!panel.isConnected)return;
     const profile=body.profile;
     if(!profile||profile.status==='awaiting_analysis') {
@@ -93,9 +91,7 @@ async function updateLibrary(key,value) {
   $('#mark-watchlist').disabled=true;
   showError('');
   try {
-    const response=await fetch('/api/library',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imdb_id:identifier,[key]:value})});
-    const body=await response.json();
-    if (!response.ok) throw new Error(body.error || 'Could not save this title.');
+    const body=await globalThis.MovieLinksAPI.request('/api/library',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imdb_id:identifier,[key]:value})});
     selected=body.title;
     $('#save-status').textContent = `${selected.title}: ${key==='seen' ? (value?'marked as seen':'marked as not seen') : (value?'added to your watchlist':'removed from your watchlist')}. Saved locally.`;
     await load();
@@ -111,9 +107,7 @@ async function load() {
   list.setAttribute('aria-busy','true');
   showError('');
   try {
-    const response=await fetch('/api/catalog?'+new URLSearchParams(state),{signal:aborter.signal});
-    const body=await response.json();
-    if (!response.ok) throw new Error(body.error || 'Could not load the local catalog.');
+    const body=await globalThis.MovieLinksAPI.request('/api/catalog?'+new URLSearchParams(state),{signal:aborter.signal});
     if(id!==requestId)return;
     result=body;
     state.page=body.page;
@@ -155,3 +149,5 @@ $('#next').addEventListener('click',()=>{state.page++;load();});
 $('#profiled').checked=state.profiled==='1';
 $('#profiled').addEventListener('change',()=>{state.profiled=$('#profiled').checked?'1':'';state.page=1;load();});
 await load();
+
+if(globalThis.MOVIE_LINKS_DATA_URL)$('#save-status').textContent='Your seen titles and watchlist are saved in this browser.';

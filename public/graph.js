@@ -2,7 +2,7 @@ const $=id=>document.getElementById(id);
 const state={titles:[],byLabel:new Map(),seed:null,data:null,request:0};
 const label=t=>`${t.title} · ${t.start_year||'year unknown'} · ${t.title_type==='movie'?'movie':'TV'} [${t.imdb_id}]`;
 function element(tag,text,className){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;}
-async function api(path,options){const response=await fetch(path,options);const value=await response.json();if(!response.ok)throw Error(value.error||'Could not load graph');return value;}
+async function api(path,options){return globalThis.MovieLinksAPI.request(path,options);}
 function showError(error){$('error').textContent=error.message;$('error').hidden=false;$('status').textContent='';}
 function resolve(input){const exact=state.byLabel.get(input.value);if(exact)return exact;const matches=state.titles.filter(t=>t.title.toLowerCase()===input.value.trim().toLowerCase()||t.imdb_id===input.value.trim());if(matches.length===1){input.value=label(matches[0]);return matches[0];}throw Error('Select an exact title from the suggestions. The year distinguishes titles with the same name.');}
 function titleLink(t){const a=element('a','Open full profile →');a.href='/explore?'+new URLSearchParams({search:t.title,title:t.imdb_id});return a;}
