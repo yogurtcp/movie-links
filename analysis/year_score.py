@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Plot the mean title rating per release year, without vote/rating cutoffs.
+"""Plot mean and median title ratings per year, without vote/rating cutoffs.
 
-Requires matplotlib and numpy (only for regenerating these figures).
+Requires matplotlib (only for regenerating these figures).
 """
 import csv
 import gzip
 import json
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
+from statistics import median
 
 import matplotlib
 matplotlib.use('Agg')
@@ -39,8 +40,8 @@ def main():
                          'xtick.color': '#555d51', 'ytick.color': '#555d51', 'axes.edgecolor': '#cbd2c3'})
     metadata = {'snapshot_date': '2026-10-15', 'scope': source['scope'],
                 'cutoffs': 'No minimum vote count or rating cutoff; every rated title has equal weight.',
-                'statistic': 'Arithmetic mean of title IMDb ratings in each release year',
-                'formula': 'sum(title IMDb ratings) / number of rated titles in that year',
+                'statistics': {'mean': 'sum(title IMDb ratings) / number of rated titles in that year',
+                               'median': 'Middle title rating after sorting; mean of the two middle ratings for even title counts'},
                 'weighting': 'Each title has equal weight; no vote weighting or smoothing.',
                 'source_urls': [s['url'] for s in source['sources']], 'groups': {}}
     for key, group in groups.items():
@@ -52,32 +53,38 @@ def main():
                       'last_year': max(y for y, _ in group['cells'])}
         metadata['groups'][key] = group_meta
         year_counts, year_score_totals = Counter(), Counter()
+        year_ratings = defaultdict(list)
         for (year, score), count in group['cells'].items():
             year_counts[year] += count
             year_score_totals[year] += score * count
+            year_ratings[year].extend([score] * count)
+        year_medians = {year: median(scores) / 10 for year, scores in year_ratings.items()}
         years = list(range(first_year, last_year + 1))
         means = [year_score_totals[year] / (10 * year_counts[year]) if year_counts[year] else float('nan') for year in years]
+        medians = [year_medians.get(year, float('nan')) for year in years]
         fig, ax = plt.subplots(figsize=(13.5, 6.5))
         fig.subplots_adjust(left=.07, right=.96, bottom=.23, top=.81)
-        ax.plot(years, means, color='#516d53', linewidth=2, marker='o', markersize=2.8)
+        ax.plot(years, means, color='#516d53', linewidth=2, marker='o', markersize=2.8, label='Average (mean)')
+        ax.plot(years, medians, color='#ad593c', linewidth=1.8, linestyle='--', marker='D', markersize=2.5, label='Median')
+        ax.legend(loc='upper left', frameon=False, ncol=2, fontsize=11)
         ax.set(xlim=(first_year - .5, last_year + .5), ylim=(1, 10),
-               xlabel='Release year' if key == 'movies' else 'Series premiere year', ylabel='Average IMDb score / 10')
+               xlabel='Release year' if key == 'movies' else 'Series premiere year', ylabel='IMDb score / 10')
         ax.xaxis.set_major_locator(MultipleLocator(10)); ax.yaxis.set_major_locator(MultipleLocator(1))
         ax.spines[['top', 'right']].set_visible(False)
         ax.grid(axis='y', color='#70806a', alpha=.13, linewidth=.6)
         ax.set_axisbelow(True)
-        fig.text(.07, .925, f'{label}: average IMDb score by year', fontsize=21)
+        fig.text(.07, .925, f'{label}: mean & median IMDb score by year', fontsize=20)
         fig.text(.07, .865, f'{plotted:,} titles · All vote counts and ratings · IMDb snapshot: 15 October 2026', fontsize=11, color='#626b5b')
-        fig.text(.07, .105, 'Each point = the arithmetic mean of title ratings for that year. Every title counts equally; no smoothing.', fontsize=10, color='#626b5b')
+        fig.text(.07, .105, 'Average = arithmetic mean. Median = middle rating (average of the middle two for even counts). No smoothing.', fontsize=10, color='#626b5b')
         fig.text(.07, .067, f'No vote weighting. Gaps = no rated titles. {group["missing_year"]:,} titles lack a release year. Sparse years can fluctuate.', fontsize=10, color='#626b5b')
         fig.text(.07, .029, 'Non-adult movies / series / miniseries. Unrated titles, episodes, shorts and TV movies excluded. 2026 is incomplete.', fontsize=9, color='#76796f')
         fig.savefig(TARGET / f'imdb-score-by-year-{key}.png', dpi=180)
         fig.savefig(TARGET / f'imdb-score-by-year-{key}.pdf')
         plt.close(fig)
         with (TARGET / f'imdb-score-by-year-{key}.csv').open('w', newline='') as stream:
-            writer = csv.writer(stream); writer.writerow(['release_year', 'average_imdb_score', 'title_count'])
+            writer = csv.writer(stream); writer.writerow(['release_year', 'average_imdb_score', 'median_imdb_score', 'title_count'])
             for year in sorted(year_counts):
-                writer.writerow([year, f'{year_score_totals[year] / (10 * year_counts[year]):.6f}', year_counts[year]])
+                writer.writerow([year, f'{year_score_totals[year] / (10 * year_counts[year]):.6f}', f'{year_medians[year]:.2f}', year_counts[year]])
     (TARGET / 'imdb-score-by-year.json').write_text(json.dumps(metadata, indent=2) + '\n')
     print(json.dumps(metadata['groups']))
 
