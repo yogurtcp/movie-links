@@ -199,7 +199,7 @@ function renderPair(pair) {
     table.append(body); wrap.append(table); details.append(wrap); out.append(details);
   }
 }
-async function load({page = 1, compare = false, navigation = 'replace'} = {}) {
+async function load({page = 1, compare = false, navigation = 'replace', scrollToTop = false} = {}) {
   const token = ++state.request;
   $('recommendations').setAttribute('aria-busy', 'true');
   try {
@@ -226,6 +226,7 @@ async function load({page = 1, compare = false, navigation = 'replace'} = {}) {
       if (data.page > 1) url.searchParams.set('page', String(data.page));
       history[navigation === 'push' ? 'pushState' : 'replaceState'](null, '', url);
     }
+    if (scrollToTop) window.scrollTo({top: 0, left: 0, behavior: 'instant'});
   } catch (error) { if (token === state.request) showError(error); }
   finally { if (token === state.request) $('recommendations').setAttribute('aria-busy', 'false'); }
 }
@@ -241,7 +242,7 @@ function applyUrl() {
 $('search').addEventListener('submit', event => { event.preventDefault(); load({navigation:'push'}); });
 $('compare-form').addEventListener('submit', event => { event.preventDefault(); load({compare:true,navigation:'push'}); });
 $('dimension').addEventListener('change', () => load()); $('unseen').addEventListener('change', () => load());
-$('previous').onclick = () => load({page: (state.data?.page || 1) - 1}); $('next').onclick = () => load({page: (state.data?.page || 1) + 1});
+$('previous').onclick = () => load({page: (state.data?.page || 1) - 1, scrollToTop: true}); $('next').onclick = () => load({page: (state.data?.page || 1) + 1, scrollToTop: true});
 $('toggle-map').onclick = () => { const show = $('map-panel').hidden; $('map-panel').hidden = !show; $('toggle-map').setAttribute('aria-expanded',String(show)); $('toggle-map').textContent = show ? 'Hide map' : 'Show map'; if (show && state.data) renderMap(state.data); };
 window.addEventListener('popstate', () => { if (state.titles.length) applyUrl(); });
 (async () => {

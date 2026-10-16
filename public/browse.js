@@ -101,7 +101,7 @@ async function updateLibrary(key,value) {
     renderDetail();
   }
 }
-async function load() {
+async function load({scrollToTop = false} = {}) {
   const id=++requestId;
   aborter?.abort();
   aborter=new AbortController();
@@ -127,6 +127,7 @@ async function load() {
     $('#previous').disabled=body.page<=1;
     $('#next').disabled=body.page>=body.pages;
     renderList();renderDetail();syncUrl();
+    if(scrollToTop)window.scrollTo({top:0,left:0,behavior:'instant'});
   } catch(error) {
     if(error.name!=='AbortError') {
       showError(error.message);
@@ -145,8 +146,8 @@ for(const [key,control] of Object.entries(controls)) {
     else load();
   });
 }
-$('#previous').addEventListener('click',()=>{state.page--;load();});
-$('#next').addEventListener('click',()=>{state.page++;load();});
+$('#previous').addEventListener('click',()=>{state.page--;load({scrollToTop:true});});
+$('#next').addEventListener('click',()=>{state.page++;load({scrollToTop:true});});
 $('#profiled').checked=state.profiled==='1';
 $('#profiled').addEventListener('change',()=>{state.profiled=$('#profiled').checked?'1':'';state.page=1;load();});
 await load();
