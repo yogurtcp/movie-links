@@ -72,7 +72,7 @@ def build():
     data_file.write_text(json.dumps(payload, ensure_ascii=False, separators=(',', ':')))
     (dist / 'runtime-config.js').write_text('globalThis.MOVIE_LINKS_DATA_URL="/data/catalog.json";\n')
     # Directory entrypoints work on static hosts without an API server or SPA fallback.
-    (dist / 'index.html').write_text((dist / 'browse.html').read_text())
+    (dist / 'index.html').write_text((dist / 'graph.html').read_text())
     for route, source in [('graph', 'graph.html'), ('explore', 'browse.html')]:
         (dist / route).mkdir()
         shutil.copyfile(dist / source, dist / route / 'index.html')

@@ -4,7 +4,7 @@
 
 The hosted app is public and requires no sign-in. Seen titles, watchlist choices, and connection feedback are stored in your browser.
 
-Movie Links helps explore IMDb-listed movies and TV series through qualities they share: character dynamics, story mechanics, emotional experience, humor, worldview, visual style, pacing, and more. Choose a familiar title, follow labeled links, and compare a pair directly.
+Movie Links helps explore IMDb-listed movies and TV series through qualities they share: character dynamics, story mechanics, emotional experience, humor, worldview, visual style, pacing, and more. The home page starts with connections: choose a familiar title, read descriptions in the connected-title cards, and continue exploring from any card. Every title is labeled Movie, Series, or Miniseries. Descriptions remain closed behind a spoiler warning. A map and detailed pair comparison are available when wanted.
 
 ## Current scope
 
@@ -30,7 +30,7 @@ Requirements: Node.js 18+ for the local app, Python 3.10+ for catalog and graph 
 npm start
 ```
 
-Open [http://localhost:4173](http://localhost:4173). If that port is already used by another local app, run `PORT=4174 npm start` and open [http://localhost:4174](http://localhost:4174). Use **Explore** to search the catalog, **Graph** to follow connections or compare two titles, and **Ratings** for IMDb score distributions. Your seen and watchlist choices are saved in the local SQLite database. The server listens on loopback only.
+Open [http://localhost:4173](http://localhost:4173). If that port is already used by another local app, run `PORT=4174 npm start` and open [http://localhost:4174](http://localhost:4174). The home page opens the connection browser. Use **All titles** for the searchable catalog; the optional map and pair comparison are in the main discovery page. Ratings are linked from the explanation at the bottom. Your seen and watchlist choices are saved in the local SQLite database. The server listens on loopback only.
 
 ## Restore catalog and graph data
 

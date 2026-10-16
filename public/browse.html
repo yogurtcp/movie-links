@@ -9,7 +9,7 @@
   <script type="module" src="/browse.js"></script>
 <script src="/runtime-config.js"></script><script src="/app-api.js"></script></head>
 <body>
-  <header class="topbar"><a class="brand" href="/">movie links<span class="brand-dot" aria-hidden="true"></span></a><nav aria-label="Main navigation"><a href="/graph">Graph search</a><a href="/explore" aria-current="page">Catalog & profiles</a><a href="/ratings">Ratings ↗</a></nav><span class="local-label">MOVIES & SERIES</span></header>
+  <header class="topbar"><a class="brand" href="/">movie links<span class="brand-dot" aria-hidden="true"></span></a><nav aria-label="Main navigation"><a href="/">Discover connections</a><a href="/explore/" aria-current="page">All titles</a></nav><span class="local-label">MOVIES & SERIES</span></header>
   <main>
     <section class="intro"><div><p class="eyebrow">YOUR NEXT WATCH STARTS SOMEWHERE</p><h1>A collection worth exploring.</h1><p class="intro-description">Search the selected movies and series. Keep track of what you’ve seen and what caught your eye.</p></div><div class="scope"><span>IMDb selection · 15 October 2026</span><strong>50,000+ votes</strong><span>Movies ≥ 6.8 · Series ≥ 8.1</span></div></section>
     <section class="filters" aria-label="Catalog filters">
@@ -23,7 +23,7 @@
     <div id="error" class="error" role="alert" hidden></div>
     <div class="catalog-layout">
       <section class="results" aria-label="Matching titles"><div class="column-headings" aria-hidden="true"><span>TITLE</span><span>RATING</span><span>VOTES</span></div><div id="title-list" aria-busy="true"></div><div class="pagination"><button id="previous" disabled>← Previous</button><span id="page-label"></span><button id="next" disabled>Next →</button></div></section>
-      <aside class="detail" id="detail" aria-label="Selected title"><p class="empty-detail">Choose a title to see its details.</p></aside>
+      <aside class="detail" id="detail" aria-label="Selected title"><p class="empty-detail">Choose a movie or show to read about it and follow its connections.</p></aside>
     </div>
     <footer><span>Follow spoiler-filtered semantic connections in Graph search. Candidate links are provisional and need review.</span><span id="save-status" role="status" aria-live="polite">Your library is saved in the local SQLite database.</span></footer>
   </main>

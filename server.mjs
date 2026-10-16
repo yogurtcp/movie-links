@@ -77,9 +77,9 @@ const server = http.createServer(async (req, res) => {
     }
     if (pathname.startsWith('/api/')) return json(res, 404, { error: 'Unknown endpoint' });
     if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405).end('Method not allowed'); return; }
-    const isChart = pathname === '/ratings';
+    const isChart = /^\/ratings\/?$/.test(pathname);
     const filename = isChart ? path.join(root, '..', 'output', 'imdb-ratings-browser.html')
-      : path.resolve(root, '.' + (pathname === '/graph' ? '/graph.html' : pathname === '/' || pathname === '/explore' ? '/browse.html' : pathname));
+      : path.resolve(root, '.' + (['/','/index.html','/graph','/graph/'].includes(pathname) ? '/graph.html' : ['/explore','/explore/'].includes(pathname) ? '/browse.html' : pathname));
     if (!isChart && !filename.startsWith(root + path.sep)) {
       res.writeHead(403).end('Forbidden');
       return;
