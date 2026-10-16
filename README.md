@@ -4,6 +4,8 @@
 
 The hosted app is public and requires no sign-in. Seen titles, watchlist choices, and connection feedback are stored in your browser.
 
+**[IMDb score vs release year](https://movie-links.yogurt-co.chatgpt.site/years/)** shows separate density graphs for all rated movies and series/miniseries in the snapshot, without vote or rating cutoffs. There are 345,326 plotted movies and 139,880 plotted series; 67 rated titles lack a release year. Each cell is one year × 0.1 rating, with a shared logarithmic count scale. PNG, PDF and aggregate CSV downloads are available. To regenerate: install `matplotlib` and `numpy`, then run `python3 analysis/year_score.py` before the hosted build.
+
 Movie Links helps explore IMDb-listed movies and TV series through qualities they share: character dynamics, story mechanics, emotional experience, humor, worldview, visual style, pacing, and more. The home page starts with connections: choose a familiar title, read descriptions in the connected-title cards, and continue exploring from any card. Every title is labeled Movie, Series, or Miniseries. Descriptions remain closed behind a spoiler warning. A map and detailed pair comparison are available when wanted.
 
 ## Current scope

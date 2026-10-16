@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), 'public');
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.pdf': 'application/pdf', '.csv': 'text/csv; charset=utf-8', '.json': 'application/json; charset=utf-8' };
 const port = Number(process.env.PORT || 4173);
 function database(request) {
   return new Promise((resolve, reject) => {
@@ -82,7 +82,7 @@ const server = http.createServer(async (req, res) => {
     if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405).end('Method not allowed'); return; }
     const isChart = /^\/ratings\/?$/.test(pathname);
     const filename = isChart ? path.join(root, '..', 'output', 'imdb-ratings-browser.html')
-      : path.resolve(root, '.' + (['/','/index.html','/graph','/graph/'].includes(pathname) ? '/graph.html' : ['/explore','/explore/'].includes(pathname) ? '/browse.html' : ['/best','/best/'].includes(pathname) ? '/best.html' : pathname));
+      : path.resolve(root, '.' + (['/','/index.html','/graph','/graph/'].includes(pathname) ? '/graph.html' : ['/explore','/explore/'].includes(pathname) ? '/browse.html' : ['/best','/best/'].includes(pathname) ? '/best.html' : ['/years','/years/'].includes(pathname) ? '/years.html' : pathname));
     if (!isChart && !filename.startsWith(root + path.sep)) {
       res.writeHead(403).end('Forbidden');
       return;
