@@ -2,7 +2,7 @@
 
 **[Open Movie Links](https://movie-links.yogurt-co.chatgpt.site)** · [Graph search](https://movie-links.yogurt-co.chatgpt.site/graph/) · [Catalog](https://movie-links.yogurt-co.chatgpt.site/explore/)
 
-The hosted app requires the owner’s ChatGPT sign-in. Seen titles, watchlist choices, and connection feedback are stored in your browser.
+The hosted app is public and requires no sign-in. Seen titles, watchlist choices, and connection feedback are stored in your browser.
 
 Movie Links helps explore IMDb-listed movies and TV series through qualities they share: character dynamics, story mechanics, emotional experience, humor, worldview, visual style, pacing, and more. Choose a familiar title, follow labeled links, and compare a pair directly.
 
