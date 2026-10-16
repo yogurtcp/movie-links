@@ -8,7 +8,8 @@
     "dev": "node server.mjs",
     "start": "node server.mjs",
     "build:hosted": "python3 analysis/export_hosted.py",
-    "check:hosted": "node analysis/check_hosted.mjs"
+    "check:hosted": "node analysis/check_hosted.mjs",
+    "check:ratings": "python3 -m unittest discover -s analysis -p test_rating_context.py"
   },
   "engines": {
     "node": ">=18"

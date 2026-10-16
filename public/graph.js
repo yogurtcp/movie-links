@@ -127,13 +127,13 @@ function goTo(title) {
 function renderStartingTitle(title) {
   const out = $('starting-title'); out.replaceChildren(element('p', 'EXPLORING FROM', 'eyebrow'), metadata(title), element('h2', title.title, 'title-heading'));
   if (title.genres?.length) out.append(element('p', title.genres.join(' · '), 'genres'));
-  out.append(description(title));
+  out.append(globalThis.MovieLinksRatings.render(title), description(title));
 }
 function recommendation(neighbor) {
   const title = neighbor.title;
   const card = element('article', undefined, 'recommendation-card'); card.id = 'title-' + title.imdb_id;
   const heading = element('h3', title.title, 'title-heading'); heading.tabIndex = -1;
-  card.append(metadata(title), heading);
+  card.append(metadata(title), heading, globalThis.MovieLinksRatings.render(title));
   const previews = element('ul', undefined, 'connection-preview');
   for (const value of neighbor.connections.slice(0, 3)) {
     const row = element('li'); row.append(element('span', value.dimension_name), element('strong', value.shared_quality));
@@ -182,7 +182,7 @@ function renderPair(pair) {
   const out = $('pair'); out.replaceChildren(); if (!pair) return;
   out.append(element('h2', `${shortLabel(state.data.seed)} ↔ ${shortLabel(pair.title)}`, 'pair-heading'));
   for (const title of [state.data.seed, pair.title]) {
-    const teaser = element('section', undefined, 'pair-title'); teaser.append(metadata(title), element('h3', title.title), description(title)); out.append(teaser);
+    const teaser = element('section', undefined, 'pair-title'); teaser.append(metadata(title), element('h3', title.title), globalThis.MovieLinksRatings.render(title), description(title)); out.append(teaser);
   }
   if (!pair.connections.length) out.append(element('p', 'No shared qualities are assigned in the current profiles. This does not mean the titles have nothing in common.', 'pair-note'));
   for (const value of pair.connections) out.append(connection(value));

@@ -1,6 +1,7 @@
 """Read graph neighborhoods, compare exact title pairs, and record local feedback."""
 import json
 from collections import defaultdict
+from rating_context import context_for_title
 
 SPOILER_FAMILIES = ('resolution','character_arc','mystery','tragedy')
 
@@ -10,7 +11,12 @@ def title(db, identifier):
         COALESCE(l.seen,0) AS seen,COALESCE(l.watchlist,0) AS watchlist
         FROM titles t LEFT JOIN title_profiles p ON p.imdb_id=t.imdb_id
         LEFT JOIN personal_library l ON l.imdb_id=t.imdb_id WHERE t.imdb_id=? AND t.in_scope=1''',(identifier,)).fetchone()
-    return dict(row) if row else None
+    if not row:
+        return None
+    value = dict(row)
+    value['genres'] = [r[0] for r in db.execute('SELECT genre FROM title_genres WHERE imdb_id=? ORDER BY genre', (identifier,))]
+    value['rating_context'] = context_for_title(value)
+    return value
 
 
 def edge(db,row):

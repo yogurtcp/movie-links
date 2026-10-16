@@ -28,14 +28,20 @@ assert.ok(data.dimensions.every(d=>!hidden.has(d.slug)));
 assert.ok(Object.values(data.profiles).every(p=>Object.keys(p.positions).every(d=>!hidden.has(d))&&Object.keys(p.extras).every(d=>!hidden.has(d))));
 assert.ok(data.titles.every(t=>!('seen' in t)&&!('watchlist' in t)));
 assert.ok(!payload.includes('"supporting_excerpt":'));
+assert.ok(data.titles.every(t=>t.rating_context?.overall.population === (t.title_type==='movie'?4674:721)));
+assert.ok(data.titles.every(t=>t.rating_context.genres.length===t.genres.length));
 let api=client();
 const search=await api('/api/catalog?search=Futurama');
 assert.equal(search.total,1);assert.equal(search.titles[0].imdb_id,'tt0149460');
 const sourceCatalog=local({action:'catalog',search:'Futurama'});
 assert.equal(search.titles[0].rating,sourceCatalog.titles[0].rating);
+assert.equal(JSON.stringify(search.titles[0].rating_context),JSON.stringify(sourceCatalog.titles[0].rating_context));
+assert.equal(search.titles[0].rating_context.overall.percentile,76.1442);
+assert.equal(search.titles[0].rating_context.genres.find(g=>g.genre==='Animation').population,89);
 for(const id of ['tt0149460','tt2560140','tt0877057']) {
   const actual=await api('/api/graph?seed='+id),expected=local({action:'graph',seed:id});
   assert.equal(actual.total_neighbors,expected.total_neighbors,`${id}: neighbor count`);
+  assert.equal(JSON.stringify(actual.seed.rating_context),JSON.stringify(expected.seed.rating_context),`${id}: rating context`);
   assert.equal(actual.neighbors.map(n=>n.title.imdb_id).join(','),expected.neighbors.map(n=>n.title.imdb_id).join(','),`${id}: ranked neighbors`);
 }
 const pair=await api('/api/graph?seed=tt2560140&compare=tt0877057');

@@ -4,6 +4,7 @@ import json
 import sqlite3
 import sys
 from pathlib import Path
+from rating_context import context_for_title
 
 DB = Path(__file__).resolve().parents[1] / 'data' / 'watch-map.sqlite3'
 SORTS = {
@@ -33,6 +34,7 @@ def title_dict(row):
     result['genres'] = result['genres'].split(',') if result['genres'] else []
     result['seen'] = bool(result['seen'])
     result['watchlist'] = bool(result['watchlist'])
+    result['rating_context'] = context_for_title(result)
     return result
 
 

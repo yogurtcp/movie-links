@@ -41,6 +41,7 @@ python3 analysis/imdb_distribution.py
 python3 analysis/select_analysis_scope.py
 python3 analysis/database.py init
 python3 analysis/profiles.py init
+python3 analysis/rating_context.py
 python3 analysis/profile_snapshot.py import
 python3 analysis/save_validated_example.py
 python3 analysis/build_graph.py
@@ -74,3 +75,11 @@ IMDb datasets are governed by [IMDb's non-commercial dataset terms](https://data
 Run `npm run build:hosted` after restoring or updating the local catalog and graph, followed by `npm run check:hosted`. It creates `dist/` with the complete catalog, spoiler-filtered profiles, and compact graph data. Personal library records and prior personal feedback are excluded. The hosted version runs in the browser and stores new library choices and connection feedback in browser storage. The local Node/Python server continues to use SQLite.
 
 Sites hosting configuration is tracked in `.openai/hosting.json`. The generated `dist/` directory and its IMDb-derived catalog stay out of the public GitHub source tree.
+
+## Rating percentiles
+
+Each title shows its IMDb rating percentile within its format, plus a separate percentile within every IMDb genre in that format. The reference includes all non-adult eligible movies and series with at least 50,000 votes, **before** the median-rating selection: 4,674 movies and 721 series/miniseries in the 15 October 2026 snapshot. Thus the reference includes titles outside the 2,895-title recommendation catalog. Series and miniseries are pooled, as in the selection rule.
+
+Ranks use `100 × (number rated lower + 0.5 × number tied) / group size`. Every title has equal weight. Genres overlap and are never averaged together. The app shows group sizes and marks genre groups with fewer than 30 titles. This is a relative rating position, not an adjusted IMDb score or an enjoyment probability.
+
+`output/rating-reference.json` preserves the aggregate histograms and provenance; regenerate it with `python3 analysis/rating_context.py` after rebuilding the matching IMDb snapshot. Run `npm run check:ratings` for the tie-handling and comparison-membership checks, and `npm run check:hosted` for parity between local and hosted results.
