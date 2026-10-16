@@ -15,8 +15,9 @@
     "unrated": "excluded from distributions"
   },
   "cutoffs": "No minimum vote count or rating cutoff; every rated title has equal weight.",
-  "cell": "One release year \u00d7 0.1 IMDb rating",
-  "color_scale": "logarithmic",
+  "statistic": "Arithmetic mean of title IMDb ratings in each release year",
+  "formula": "sum(title IMDb ratings) / number of rated titles in that year",
+  "weighting": "Each title has equal weight; no vote weighting or smoothing.",
   "source_urls": [
     "https://datasets.imdbws.com/title.ratings.tsv.gz",
     "https://datasets.imdbws.com/title.basics.tsv.gz"
