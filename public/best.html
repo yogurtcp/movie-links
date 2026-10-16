@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Find the highest-rated movies and series by genre, with IMDb rating percentiles within each format.">
+<title>Movie Links · best by genre</title>
+<link rel="stylesheet" href="/browse.css"><link rel="stylesheet" href="/graph.css"><link rel="stylesheet" href="/best.css">
+<script src="/runtime-config.js"></script><script src="/app-api.js"></script><script src="/rating-context.js"></script><script src="/best.js" defer></script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/">movie links<span class="brand-dot" aria-hidden="true"></span></a><nav aria-label="Main navigation"><a href="/">Discover connections</a><a href="/explore/">All titles</a><a href="/best/" aria-current="page">Best by genre</a></nav><span class="local-label">MOVIES & SERIES</span></header>
+<main class="discovery">
+<section class="discovery-intro"><p class="eyebrow">A DIFFERENT WAY TO FIND YOUR NEXT WATCH</p><h1>Best by genre.</h1><p>Explore the highest IMDb ratings in a genre. Movies and series have separate rankings, with percentiles showing where each title stands in its own group.</p></section>
+<section class="best-filters" aria-label="Ranking filters"><label><span class="field-label">FORMAT</span><select id="type" disabled><option value="movies">Movies</option><option value="tv">Series & miniseries</option></select></label><label><span class="field-label">GENRE</span><select id="genre" disabled><option value="Comedy">Comedy</option></select></label></section>
+<div class="ranking-heading"><h2 id="ranking-heading">Highest-rated comedy movies</h2><p id="status" role="status" aria-live="polite">Loading rankings…</p></div>
+<details class="ranking-method"><summary>What these rankings mean</summary><p>Ranked by IMDb rating, among non-adult movies, series and miniseries with at least 50,000 votes in our 15 October 2026 snapshot. This view includes all 4,674 movies and 721 series/miniseries before the graph’s median-rating cutoff. Some titles therefore have no mapped connections yet.</p><p>Genre percentile = 100 × (titles rated lower + half of titles with the same rating) ÷ titles in that genre and format. Within one genre and format, the percentile follows the IMDb score; it is not an additional quality score. Every title counts equally.</p><p>Equal IMDb ratings share the same rank and percentile. Vote totals only order tied titles on screen. Series and miniseries share one group. Genres overlap; each genre is ranked separately. Groups with fewer than 30 titles are marked “small group.” These rankings reflect audience ratings, not a prediction that you will enjoy a title.</p></details>
+<div id="error" class="error" hidden role="alert"></div>
+<ol id="rankings" class="rankings" aria-labelledby="ranking-heading" aria-busy="true"></ol>
+<div class="pagination"><button id="previous" type="button" disabled>← Previous</button><span id="page-label"></span><button id="next" type="button" disabled>Next →</button></div>
+<footer class="discovery-footer"><p>Descriptions stay closed until opened. IMDb pages and linked sources may contain spoilers.</p></footer>
+</main></body></html>

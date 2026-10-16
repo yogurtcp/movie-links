@@ -39,6 +39,9 @@ const server = http.createServer(async (req, res) => {
     }
     const url = new URL(req.url, 'http://localhost');
     const pathname = decodeURIComponent(url.pathname);
+    if (pathname === '/api/rankings' && req.method === 'GET') {
+      return json(res, 200, await database({ action: 'rankings' }));
+    }
     if (pathname === '/api/catalog' && req.method === 'GET') {
       return json(res, 200, await database({ ...Object.fromEntries(url.searchParams), action: 'catalog' }));
     }
@@ -79,7 +82,7 @@ const server = http.createServer(async (req, res) => {
     if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405).end('Method not allowed'); return; }
     const isChart = /^\/ratings\/?$/.test(pathname);
     const filename = isChart ? path.join(root, '..', 'output', 'imdb-ratings-browser.html')
-      : path.resolve(root, '.' + (['/','/index.html','/graph','/graph/'].includes(pathname) ? '/graph.html' : ['/explore','/explore/'].includes(pathname) ? '/browse.html' : pathname));
+      : path.resolve(root, '.' + (['/','/index.html','/graph','/graph/'].includes(pathname) ? '/graph.html' : ['/explore','/explore/'].includes(pathname) ? '/browse.html' : ['/best','/best/'].includes(pathname) ? '/best.html' : pathname));
     if (!isChart && !filename.startsWith(root + path.sep)) {
       res.writeHead(403).end('Forbidden');
       return;

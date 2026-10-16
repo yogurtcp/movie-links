@@ -46,6 +46,9 @@ def run(request):
     db.execute('PRAGMA foreign_keys=ON')
     try:
         action = request.get('action', 'catalog')
+        if action == 'rankings':
+            from rankings import build_rankings
+            return build_rankings(db)
         if action in ('graph','graph_titles','graph_feedback'):
             from graph_api import run_graph
             return run_graph(request,db)

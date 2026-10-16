@@ -5,6 +5,7 @@ import shutil
 import sqlite3
 from pathlib import Path
 from catalog_api import FIELDS, BASE, title_dict
+from rankings import build_rankings
 
 ROOT = Path(__file__).resolve().parents[1]
 HIDDEN = {'resolution', 'character_arc', 'mystery', 'tragedy'}
@@ -60,6 +61,7 @@ def build():
         elif row['method'] == 'user_validated_pair_example_v1':
             manual.append({k: row[k] for k in ('id','title_a','title_b','dimension_slug','dimension_name',
                                                'shared_quality','explanation','differences','review_status')})
+    rankings = build_rankings(db)
     db.close()
     payload = {'version': 1, 'titles': titles, 'dimensions': dimensions, 'profiles': profiles,
                'edges': edges, 'manual': manual}
@@ -70,16 +72,18 @@ def build():
     (dist / 'data').mkdir()
     data_file = dist / 'data/catalog.json'
     data_file.write_text(json.dumps(payload, ensure_ascii=False, separators=(',', ':')))
-    (dist / 'runtime-config.js').write_text('globalThis.MOVIE_LINKS_DATA_URL="/data/catalog.json";\n')
+    (dist / 'data/rankings.json').write_text(json.dumps(rankings, ensure_ascii=False, separators=(',', ':')))
+    (dist / 'runtime-config.js').write_text('globalThis.MOVIE_LINKS_DATA_URL="/data/catalog.json";\nglobalThis.MOVIE_LINKS_RANKINGS_URL="/data/rankings.json";\n')
     # Directory entrypoints work on static hosts without an API server or SPA fallback.
     (dist / 'index.html').write_text((dist / 'graph.html').read_text())
-    for route, source in [('graph', 'graph.html'), ('explore', 'browse.html')]:
+    for route, source in [('graph', 'graph.html'), ('explore', 'browse.html'), ('best', 'best.html')]:
         (dist / route).mkdir()
         shutil.copyfile(dist / source, dist / route / 'index.html')
     (dist / 'ratings').mkdir()
     shutil.copyfile(ROOT / 'output/imdb-ratings-browser.html', dist / 'ratings/index.html')
     print(json.dumps({'titles': len(titles), 'candidate_connections': len(edges), 'visible_families': len(dimensions),
-                      'data_bytes': data_file.stat().st_size, 'personal_library_exported': False}))
+                      'data_bytes': data_file.stat().st_size, 'ranked_titles': len(rankings['titles']),
+                      'personal_library_exported': False}))
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 # Movie Links
 
-**[Open Movie Links](https://movie-links.yogurt-co.chatgpt.site)** · [Graph search](https://movie-links.yogurt-co.chatgpt.site/graph/) · [Catalog](https://movie-links.yogurt-co.chatgpt.site/explore/)
+**[Open Movie Links](https://movie-links.yogurt-co.chatgpt.site)** · [Graph search](https://movie-links.yogurt-co.chatgpt.site/graph/) · [Catalog](https://movie-links.yogurt-co.chatgpt.site/explore/) · [Best by genre](https://movie-links.yogurt-co.chatgpt.site/best/)
 
 The hosted app is public and requires no sign-in. Seen titles, watchlist choices, and connection feedback are stored in your browser.
 
@@ -17,6 +17,8 @@ The catalog was selected from official IMDb snapshots downloaded **15 October 20
 | **Total** |  |  | **2,895** |
 
 Episodes, shorts, TV movies and unrated titles are excluded. All years and genres are included. Ties at the median are included. The selection also includes documentaries, animation and some reality or talk formats.
+
+The optional **Best by genre** view ranks the full **5,395-title** population with at least 50,000 votes, before the graph’s median-rating cutoff. Choose movies or series/miniseries and a genre to see IMDb ratings, vote counts, and percentiles within that genre and format. Equal ratings share a rank and percentile; votes only order tied titles on screen. Multi-genre titles appear in each applicable genre. Titles outside the 2,895-title graph catalog are labeled as not mapped; all titles link to IMDb. Available descriptions stay behind a spoiler warning, and mapped titles link back to their connections.
 
 The graph uses 26 descriptive families for its internal profiles. Its browsing and recommendation views expose 22 families; ending outcomes, character destinations, mystery reveals and tragic events are omitted to reduce spoilers. Plot descriptions and profile summaries stay collapsed until opened with a spoiler warning. Source passages are never shown inline. See [`docs/graph-method.md`](docs/graph-method.md) for the retrieval rules and limits.
 
