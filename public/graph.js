@@ -26,7 +26,11 @@ function metadata(title) {
   const node = element('div', undefined, 'title-meta');
   node.append(element('span', format(title), 'format-pill'));
   if (title.start_year) node.append(element('span', String(title.start_year)));
-  if (title.rating) node.append(element('span', `IMDb ${title.rating.toFixed(1)}`));
+  const imdb = element('a', title.rating ? `IMDb ${title.rating.toFixed(1)} ↗` : 'IMDb ↗', 'imdb-title-link');
+  imdb.href = `https://www.imdb.com/title/${encodeURIComponent(title.imdb_id)}/`;
+  imdb.target = '_blank'; imdb.rel = 'noopener noreferrer';
+  imdb.setAttribute('aria-label', `Open ${shortLabel(title)} on IMDb (new tab)`);
+  node.append(imdb);
   return node;
 }
 async function fullTitle(title) {
@@ -61,8 +65,6 @@ function description(title) {
         const source = element('a', 'Read the source · may contain more plot details'); source.href = full.source_url;
         source.target = '_blank'; source.rel = 'noopener noreferrer'; content.append(source, element('p', 'Source description: CC BY-SA. Attribution is linked above.', 'description-basis'));
       }
-      const imdb = element('a', 'Open IMDb ↗'); imdb.href = `https://www.imdb.com/title/${title.imdb_id}/`; imdb.target = '_blank'; imdb.rel = 'noopener noreferrer';
-      const link = element('p'); link.append(imdb); content.append(link);
     } catch (error) { loaded = false; content.replaceChildren(element('p', error.message)); }
   });
   return details;

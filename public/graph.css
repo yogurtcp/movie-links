@@ -12,3 +12,4 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 summary:focus-visible{outline:3px solid #779872;outline-offset:4px}
+.imdb-title-link{color:var(--sage);text-decoration:underline;text-underline-offset:3px;padding:5px 0}.imdb-title-link:hover{color:var(--ink)}
