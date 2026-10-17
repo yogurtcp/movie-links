@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plot mean and median title ratings per year, without vote/rating cutoffs.
+"""Plot yearly mean, median and 90th percentile, without vote/rating cutoffs.
 
 Requires matplotlib (only for regenerating these figures).
 """
@@ -41,7 +41,8 @@ def main():
     metadata = {'snapshot_date': '2026-10-15', 'scope': source['scope'],
                 'cutoffs': 'No minimum vote count or rating cutoff; every rated title has equal weight.',
                 'statistics': {'mean': 'sum(title IMDb ratings) / number of rated titles in that year',
-                               'median': 'Middle title rating after sorting; mean of the two middle ratings for even title counts'},
+                               'median': 'Middle title rating after sorting; mean of the two middle ratings for even title counts',
+                               'p90': 'Nearest-rank 90th percentile: sorted rating at 1-based position ceil(0.9 * title count); no interpolation'},
                 'weighting': 'Each title has equal weight; no vote weighting or smoothing.',
                 'source_urls': [s['url'] for s in source['sources']], 'groups': {}}
     for key, group in groups.items():
@@ -59,32 +60,36 @@ def main():
             year_score_totals[year] += score * count
             year_ratings[year].extend([score] * count)
         year_medians = {year: median(scores) / 10 for year, scores in year_ratings.items()}
+        year_p90 = {year: sorted(scores)[(9 * len(scores) + 9) // 10 - 1] / 10
+                    for year, scores in year_ratings.items()}
         years = list(range(first_year, last_year + 1))
         means = [year_score_totals[year] / (10 * year_counts[year]) if year_counts[year] else float('nan') for year in years]
         medians = [year_medians.get(year, float('nan')) for year in years]
+        p90 = [year_p90.get(year, float('nan')) for year in years]
         fig, ax = plt.subplots(figsize=(13.5, 6.5))
         fig.subplots_adjust(left=.07, right=.96, bottom=.23, top=.81)
         ax.plot(years, means, color='#516d53', linewidth=2, marker='o', markersize=2.8, label='Average (mean)')
         ax.plot(years, medians, color='#ad593c', linewidth=1.8, linestyle='--', marker='D', markersize=2.5, label='Median')
-        ax.legend(loc='upper left', frameon=False, ncol=2, fontsize=11)
+        ax.plot(years, p90, color='#3c6f9e', linewidth=1.8, linestyle='-.', marker='^', markersize=2.8, label='90th percentile (P90)')
+        ax.legend(loc='upper left', frameon=False, ncol=3, fontsize=11)
         ax.set(xlim=(first_year - .5, last_year + .5), ylim=(1, 10),
                xlabel='Release year' if key == 'movies' else 'Series premiere year', ylabel='IMDb score / 10')
         ax.xaxis.set_major_locator(MultipleLocator(10)); ax.yaxis.set_major_locator(MultipleLocator(1))
         ax.spines[['top', 'right']].set_visible(False)
         ax.grid(axis='y', color='#70806a', alpha=.13, linewidth=.6)
         ax.set_axisbelow(True)
-        fig.text(.07, .925, f'{label}: mean & median IMDb score by year', fontsize=20)
+        fig.text(.07, .925, f'{label}: IMDb scores by year', fontsize=20)
         fig.text(.07, .865, f'{plotted:,} titles · All vote counts and ratings · IMDb snapshot: 15 October 2026', fontsize=11, color='#626b5b')
-        fig.text(.07, .105, 'Average = arithmetic mean. Median = middle rating (average of the middle two for even counts). No smoothing.', fontsize=10, color='#626b5b')
-        fig.text(.07, .067, f'No vote weighting. Gaps = no rated titles. {group["missing_year"]:,} titles lack a release year. Sparse years can fluctuate.', fontsize=10, color='#626b5b')
+        fig.text(.07, .105, 'Every title counts equally. P90 = rating at or below which at least 90% of that year’s titles fall.', fontsize=10, color='#626b5b')
+        fig.text(.07, .067, f'No vote weighting or smoothing. Gaps = no rated titles. {group["missing_year"]:,} titles lack a release year. Sparse years can fluctuate.', fontsize=10, color='#626b5b')
         fig.text(.07, .029, 'Non-adult movies / series / miniseries. Unrated titles, episodes, shorts and TV movies excluded. 2026 is incomplete.', fontsize=9, color='#76796f')
         fig.savefig(TARGET / f'imdb-score-by-year-{key}.png', dpi=180)
         fig.savefig(TARGET / f'imdb-score-by-year-{key}.pdf')
         plt.close(fig)
         with (TARGET / f'imdb-score-by-year-{key}.csv').open('w', newline='') as stream:
-            writer = csv.writer(stream); writer.writerow(['release_year', 'average_imdb_score', 'median_imdb_score', 'title_count'])
+            writer = csv.writer(stream); writer.writerow(['release_year', 'average_imdb_score', 'median_imdb_score', 'p90_imdb_score', 'title_count'])
             for year in sorted(year_counts):
-                writer.writerow([year, f'{year_score_totals[year] / (10 * year_counts[year]):.6f}', f'{year_medians[year]:.2f}', year_counts[year]])
+                writer.writerow([year, f'{year_score_totals[year] / (10 * year_counts[year]):.6f}', f'{year_medians[year]:.2f}', f'{year_p90[year]:.1f}', year_counts[year]])
     (TARGET / 'imdb-score-by-year.json').write_text(json.dumps(metadata, indent=2) + '\n')
     print(json.dumps(metadata['groups']))
 

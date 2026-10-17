@@ -17,7 +17,8 @@
   "cutoffs": "No minimum vote count or rating cutoff; every rated title has equal weight.",
   "statistics": {
     "mean": "sum(title IMDb ratings) / number of rated titles in that year",
-    "median": "Middle title rating after sorting; mean of the two middle ratings for even title counts"
+    "median": "Middle title rating after sorting; mean of the two middle ratings for even title counts",
+    "p90": "Nearest-rank 90th percentile: sorted rating at 1-based position ceil(0.9 * title count); no interpolation"
   },
   "weighting": "Each title has equal weight; no vote weighting or smoothing.",
   "source_urls": [
