@@ -2,6 +2,7 @@
 import json
 from collections import defaultdict
 from rating_context import context_for_title
+from title_metadata import for_title, eligible_ids, filter_options
 
 SPOILER_FAMILIES = ('resolution','character_arc','mystery','tragedy')
 
@@ -16,6 +17,7 @@ def title(db, identifier):
     value = dict(row)
     value['genres'] = [r[0] for r in db.execute('SELECT genre FROM title_genres WHERE imdb_id=? ORDER BY genre', (identifier,))]
     value['rating_context'] = context_for_title(value)
+    value.update(for_title(identifier))
     return value
 
 
@@ -37,7 +39,8 @@ def run_graph(request,db):
     family_placeholders=','.join('?' for _ in SPOILER_FAMILIES)
     if action=='graph_titles':
         return {'titles':[dict(r) for r in db.execute('''SELECT imdb_id,title,title_type,start_year FROM titles WHERE in_scope=1 ORDER BY title COLLATE NOCASE,start_year''')],
-                'dimensions':[dict(r) for r in db.execute(f"SELECT slug,name FROM dimensions WHERE slug NOT IN ({family_placeholders}) ORDER BY name",SPOILER_FAMILIES)]}
+                'dimensions':[dict(r) for r in db.execute(f"SELECT slug,name FROM dimensions WHERE slug NOT IN ({family_placeholders}) ORDER BY name",SPOILER_FAMILIES)],
+                'filters':filter_options(db)}
     if action=='graph_feedback':
         status=request.get('status')
         if status not in ('accepted','rejected','unreviewed'):
@@ -131,8 +134,10 @@ def run_graph(request,db):
         WHERE '''+' AND '.join(conditions)+''' ORDER BY (c.review_status='accepted') DESC,COALESCE(m.ranking_weight,0) DESC,c.id''',
         [identifier,identifier]+params).fetchall()
     grouped=defaultdict(list)
+    eligible = set(eligible_ids(db, request))
     for row in rows:
-        grouped[row['other_id']].append(row)
+        if row['other_id'] in eligible:
+            grouped[row['other_id']].append(row)
     ranked=sorted(grouped,key=lambda other:(-any(r['review_status']=='accepted' for r in grouped[other]),-len({r['dimension_slug'] for r in grouped[other]}),-sum(r['ranking_weight'] or 0 for r in grouped[other]),other))
     used=set()
     chosen=[]

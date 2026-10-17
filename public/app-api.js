@@ -103,6 +103,7 @@
     const grouped = new Map();
     for (const edge of edges) {
       const other = edge.title_a === seed.imdb_id ? edge.title_b : edge.title_a;
+      if (!matchesFilters(data.byId.get(other), params)) continue;
       if (params.get('unseen') === '1' && library[other]?.seen) continue;
       if (!grouped.has(other)) grouped.set(other, []);
       grouped.get(other).push(edge);
@@ -127,11 +128,35 @@
     }
     return result;
   }
+  function matchesFilters(title, params) {
+    const type = params.get('type');
+    if (type === 'movies' && title.title_type !== 'movie') return false;
+    if (type === 'tv' && !['tvSeries', 'tvMiniSeries'].includes(title.title_type)) return false;
+    for (const [key, field] of [['language', 'languages'], ['country', 'countries']]) {
+      const selected = params.get(key), values = title[field] || [];
+      if (selected === 'unknown' ? values.length > 0 : selected && !values.some(v => v.id === selected)) return false;
+    }
+    return true;
+  }
+  function filterOptions(data) {
+    if (data.filterOptions) return data.filterOptions;
+    const result = {};
+    for (const field of ['languages', 'countries']) {
+      const values = new Map();
+      for (const title of data.titles) for (const value of title[field]?.length ? title[field] : [{id: 'unknown', name: 'Unknown'}]) {
+        if (!values.has(value.id)) values.set(value.id, {...value, count: 0});
+        values.get(value.id).count++;
+      }
+      result[field] = [...values.values()].sort((a,b) => a.id === 'unknown' ? 1 : b.id === 'unknown' ? -1 : a.name.localeCompare(b.name));
+    }
+    return data.filterOptions = result;
+  }
   function catalog(data, params, library) {
     let rows=data.titles.map(t=>title(data,t.imdb_id,library));
     const search=(params.get('search')||'').trim().toLocaleLowerCase();
     if(search)rows=rows.filter(t=>t.title.toLocaleLowerCase().includes(search));
     const type=params.get('type');if(type==='movies')rows=rows.filter(t=>t.title_type==='movie');else if(type==='tv')rows=rows.filter(t=>t.title_type!=='movie');
+    rows=rows.filter(t=>matchesFilters(t,params));
     const genre=params.get('genre');if(genre)rows=rows.filter(t=>t.genres.includes(genre));
     if(params.get('profiled')==='1')rows=rows.filter(t=>t.profile_status!=='awaiting_analysis');
     const filter=params.get('library');if(filter==='seen')rows=rows.filter(t=>t.seen);else if(filter==='unseen')rows=rows.filter(t=>!t.seen);else if(filter==='watchlist')rows=rows.filter(t=>t.watchlist);
@@ -140,7 +165,7 @@
     const pages=Math.max(1,Math.ceil(rows.length/20)),page=Math.max(1,Math.min(Number(params.get('page'))||1,pages));
     const counts=new Map();for(const t of data.titles)for(const g of t.genres)counts.set(g,(counts.get(g)||0)+1);
     return {titles:rows.slice((page-1)*20,page*20),total:rows.length,page,pages,page_size:20,genres:[...counts].sort(([a],[b])=>a.localeCompare(b)).map(([genre,count])=>({genre,count})),
-      library:{seen:data.titles.filter(t=>library[t.imdb_id]?.seen).length,watchlist:data.titles.filter(t=>library[t.imdb_id]?.watchlist).length}};
+      library:{seen:data.titles.filter(t=>library[t.imdb_id]?.seen).length,watchlist:data.titles.filter(t=>library[t.imdb_id]?.watchlist).length},filters:filterOptions(data)};
   }
   async function request(path,options={}) {
     if(!globalThis.MOVIE_LINKS_DATA_URL)return jsonResponse(await fetch(path,options));
@@ -149,7 +174,7 @@
     const url=new URL(path,location.origin),library=readStore(libraryKey),feedback=readStore(feedbackKey);
     const body=options.body?JSON.parse(options.body):{};
     switch(url.pathname){
-      case '/api/graph-titles':return {titles:data.titles.map(({imdb_id,title,title_type,start_year})=>({imdb_id,title,title_type,start_year})),dimensions:data.dimensions};
+      case '/api/graph-titles':return {titles:data.titles.map(({imdb_id,title,title_type,start_year})=>({imdb_id,title,title_type,start_year})),dimensions:data.dimensions,filters:filterOptions(data)};
       case '/api/graph':return graph(data,url.searchParams,library,feedback);
       case '/api/catalog':return catalog(data,url.searchParams,library);
       case '/api/title':return {title:title(data,url.searchParams.get('id'),library)};

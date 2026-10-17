@@ -5,6 +5,7 @@ import sqlite3
 import sys
 from pathlib import Path
 from rating_context import context_for_title
+from title_metadata import for_title, eligible_ids, filter_options
 
 DB = Path(__file__).resolve().parents[1] / 'data' / 'watch-map.sqlite3'
 SORTS = {
@@ -35,6 +36,7 @@ def title_dict(row):
     result['seen'] = bool(result['seen'])
     result['watchlist'] = bool(result['watchlist'])
     result['rating_context'] = context_for_title(result)
+    result.update(for_title(result['imdb_id']))
     return result
 
 
@@ -119,6 +121,10 @@ def run(request):
         if genre:
             conditions.append('EXISTS(SELECT 1 FROM title_genres g WHERE g.imdb_id=t.imdb_id AND g.genre=?)')
             params.append(genre)
+        if request.get('language') or request.get('country'):
+            identifiers = eligible_ids(db, request)
+            conditions.append('t.imdb_id IN (' + ','.join('?' for _ in identifiers) + ')' if identifiers else '0')
+            params.extend(identifiers)
         library = request.get('library', 'all')
         if library == 'unseen':
             conditions.append('COALESCE(l.seen,0)=0')
@@ -138,7 +144,7 @@ def run(request):
         library_counts = dict(db.execute('''SELECT COALESCE(SUM(l.seen),0) AS seen,COALESCE(SUM(l.watchlist),0) AS watchlist
             FROM titles t LEFT JOIN personal_library l ON l.imdb_id=t.imdb_id WHERE t.in_scope=1''').fetchone())
         return {'titles': [title_dict(row) for row in rows], 'total': count, 'page': page, 'pages': pages,
-                'page_size': page_size, 'genres': genres, 'library': library_counts}
+                'page_size': page_size, 'genres': genres, 'library': library_counts, 'filters': filter_options(db)}
     finally:
         db.close()
 

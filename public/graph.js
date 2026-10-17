@@ -31,6 +31,12 @@ function metadata(title) {
   imdb.target = '_blank'; imdb.rel = 'noopener noreferrer';
   imdb.setAttribute('aria-label', `Open ${shortLabel(title)} on IMDb (new tab)`);
   node.append(imdb);
+  const origins = element('span', undefined, 'origin-metadata');
+  origins.append(document.createTextNode(`Language: ${(title.languages || []).map(v=>v.name).join(', ') || 'Unknown'} · Origin: ${(title.countries || []).map(v=>v.name).join(', ') || 'Unknown'}`));
+  if (/^https:\/\/www\.wikidata\.org\/wiki\/Q\d+$/.test(title.metadata_source_url || '')) {
+    const source = element('a', 'Metadata ↗'); source.href = title.metadata_source_url; source.target = '_blank'; source.rel = 'noopener noreferrer'; origins.append(' · ', source);
+  }
+  node.append(origins);
   return node;
 }
 async function fullTitle(title) {
@@ -156,7 +162,7 @@ function recommendation(neighbor) {
 }
 function renderRecommendations(data) {
   const out = $('recommendations'); out.replaceChildren();
-  if (!data.neighbors.length) out.append(element('p', 'No connected titles match these filters. Try another shared quality, include seen titles, or compare a specific pair below.', 'empty-connections'));
+  if (!data.neighbors.length) out.append(element('p', 'No connected titles match these filters. Try another format, language, country or shared quality, or reset the filters.', 'empty-connections'));
   else for (const neighbor of data.neighbors) out.append(recommendation(neighbor));
 }
 function renderMap(data) {
@@ -206,6 +212,7 @@ async function load({page = 1, compare = false, navigation = 'replace', scrollTo
     $('error').hidden = true;
     const seed = resolve($('seed'));
     const query = new URLSearchParams({seed: seed.imdb_id, page: String(page), dimension: $('dimension').value, unseen: $('unseen').checked ? '1' : '0'});
+    for (const key of ['type', 'language', 'country']) if ($(key).value) query.set(key, $(key).value);
     if (compare) query.set('compare', resolve($('compare')).imdb_id);
     $('status').textContent = 'Finding connections…';
     const data = await api('/api/graph?' + query);
@@ -223,6 +230,7 @@ async function load({page = 1, compare = false, navigation = 'replace', scrollTo
       if (compare) url.searchParams.set('compare', query.get('compare'));
       if ($('dimension').value) url.searchParams.set('dimension', $('dimension').value);
       if ($('unseen').checked) url.searchParams.set('unseen', '1');
+      for (const key of ['type', 'language', 'country']) if ($(key).value && $(key).value !== 'all') url.searchParams.set(key, $(key).value);
       if (data.page > 1) url.searchParams.set('page', String(data.page));
       history[navigation === 'push' ? 'pushState' : 'replaceState'](null, '', url);
     }
@@ -234,6 +242,10 @@ function applyUrl() {
   const query = new URLSearchParams(location.search);
   const seed = state.byId.get(query.get('seed') || 'tt2560140') || state.titles[0];
   $('seed').value = label(seed); $('dimension').value = query.get('dimension') || ''; $('unseen').checked = query.get('unseen') === '1';
+  for (const key of ['type', 'language', 'country']) {
+    const value = query.get(key) || (key === 'type' ? 'all' : '');
+    $(key).value = [...$(key).options].some(option => option.value === value) ? value : (key === 'type' ? 'all' : '');
+  }
   const other = state.byId.get(query.get('compare'));
   if (other) $('compare').value = label(other);
   $('compare-section').open = Boolean(other);
@@ -242,6 +254,8 @@ function applyUrl() {
 $('search').addEventListener('submit', event => { event.preventDefault(); load({navigation:'push'}); });
 $('compare-form').addEventListener('submit', event => { event.preventDefault(); load({compare:true,navigation:'push'}); });
 $('dimension').addEventListener('change', () => load()); $('unseen').addEventListener('change', () => load());
+for (const key of ['type', 'language', 'country']) $(key).addEventListener('change', () => load());
+$('clear-filters').onclick = () => { $('type').value = 'all'; for (const key of ['language', 'country', 'dimension']) $(key).value = ''; $('unseen').checked = false; load(); };
 $('previous').onclick = () => load({page: (state.data?.page || 1) - 1, scrollToTop: true}); $('next').onclick = () => load({page: (state.data?.page || 1) + 1, scrollToTop: true});
 $('toggle-map').onclick = () => { const show = $('map-panel').hidden; $('map-panel').hidden = !show; $('toggle-map').setAttribute('aria-expanded',String(show)); $('toggle-map').textContent = show ? 'Hide map' : 'Show map'; if (show && state.data) renderMap(state.data); };
 window.addEventListener('popstate', () => { if (state.titles.length) applyUrl(); });
@@ -253,6 +267,9 @@ window.addEventListener('popstate', () => { if (state.titles.length) applyUrl();
     for (const title of data.titles) { let value = label(title); if (counts.get(value)>1) value += ` [${title.imdb_id}]`; state.labels.set(title.imdb_id,value); state.byLabel.set(value,title); const option=element('option'); option.value=value; fragment.append(option); }
     $('titles').append(fragment);
     for (const dimension of data.dimensions) { const option=element('option',dimension.name); option.value=dimension.slug; $('dimension').append(option); }
+    for (const [key, field] of [['language', 'languages'], ['country', 'countries']]) for (const value of data.filters?.[field] || []) {
+      const option = element('option', `${value.name} (${value.count.toLocaleString()})`); option.value = value.id; $(key).append(option);
+    }
     await applyUrl();
   } catch (error) { showError(error); $('recommendations').setAttribute('aria-busy','false'); }
 })();

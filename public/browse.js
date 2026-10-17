@@ -1,11 +1,11 @@
 const $ = selector => document.querySelector(selector);
-const controls = Object.fromEntries(['search','type','genre','library','sort'].map(key => [key, $('#' + key)]));
+const controls = Object.fromEntries(['search','type','genre','language','country','library','sort'].map(key => [key, $('#' + key)]));
 const list = $('#title-list');
 const detail = $('#detail');
 const number = new Intl.NumberFormat('en-US');
 const compact = new Intl.NumberFormat('en-US', { notation:'compact', maximumFractionDigits:1 });
 const initial = new URLSearchParams(location.search);
-let state = { search:initial.get('search') || '', type:initial.get('type') || 'all', genre:initial.get('genre') || '', library:initial.get('library') || 'all', sort:initial.get('sort') || 'votes', profiled:initial.get('profiled')==='1'?'1':'', page:Math.max(1, Number(initial.get('page')) || 1) };
+let state = { search:initial.get('search') || '', type:initial.get('type') || 'all', genre:initial.get('genre') || '', language:initial.get('language') || '', country:initial.get('country') || '', library:initial.get('library') || 'all', sort:initial.get('sort') || 'votes', profiled:initial.get('profiled')==='1'?'1':'', page:Math.max(1, Number(initial.get('page')) || 1) };
 let selectedId = initial.get('title');
 let selected = null;
 let result = null;
@@ -60,6 +60,12 @@ function renderDetail() {
   const source = /^https:\/\/(www\.tvmaze\.com|en\.wikipedia\.org)\//.test(title.source_url || '') ? title.source_url : null;
   detail.innerHTML = `<div class="detail-head"><div class="detail-kicker">${format(title).toUpperCase()}</div><h2>${escape(title.title)}</h2><div class="detail-year">${escape(title.start_year || 'Year unavailable')}</div></div><div class="detail-body"><div class="detail-stats"><div class="detail-stat"><strong>${title.rating.toFixed(1)} <small>/ 10</small></strong><small>IMDb rating</small></div><div class="detail-stat"><strong>${number.format(title.num_votes)}</strong><small>User votes</small></div></div><div class="tags">${title.genres.map(genre=>`<span class="tag">${escape(genre)}</span>`).join('')}</div>${title.summary ? `<details class="spoiler-description"><summary>Plot description (may include spoilers)</summary><p class="summary">${escape(title.summary)}</p>${source ? `<div class="source-link">Source: <a href="${escape(source)}" target="_blank" rel="noreferrer">${title.source_provider==='wikipedia'?'Wikipedia':'TVmaze'} ↗</a> · CC BY-SA</div>` : ''}</details>` : `<p class="not-collected">${title.title_type==='movie' ? 'Movie descriptions haven’t been collected yet. You can open IMDb for more information.' : 'An exact TVmaze description wasn’t found for this title. You can open IMDb for more information.'}</p>`}<div class="detail-actions"><button type="button" class="action ${title.seen?'active':''}" id="mark-seen" aria-pressed="${title.seen}">${title.seen?'✓ Seen':'Mark as seen'}</button><button type="button" class="action ${title.watchlist?'active':''}" id="mark-watchlist" aria-pressed="${title.watchlist}">${title.watchlist?'✓ On watchlist':'+ Watchlist'}</button></div><a class="imdb-link" href="https://www.imdb.com/title/${encodeURIComponent(title.imdb_id)}/" target="_blank" rel="noreferrer">Open on IMDb ↗</a></div>`;
   detail.querySelector('.detail-stats').after(globalThis.MovieLinksRatings.render(title));
+  const origins = document.createElement('p'); origins.className = 'catalog-origins';
+  origins.textContent = `Original language: ${(title.languages || []).map(v=>v.name).join(', ') || 'Unknown'} · Country of origin: ${(title.countries || []).map(v=>v.name).join(', ') || 'Unknown'}`;
+  if (/^https:\/\/www\.wikidata\.org\/wiki\/Q\d+$/.test(title.metadata_source_url || '')) {
+    const source = document.createElement('a'); source.href = title.metadata_source_url; source.textContent = 'Wikidata metadata ↗'; source.target = '_blank'; source.rel = 'noopener noreferrer'; origins.append(' · ', source);
+  }
+  detail.querySelector('.tags').after(origins);
   const profilePanel=document.createElement('section');
   profilePanel.className='profile-section';profilePanel.setAttribute('aria-label','Derived title profile');
   profilePanel.innerHTML='<h3>Connection profile</h3><p class="profile-note">Loading the current assessment…</p>';
@@ -67,7 +73,7 @@ function renderDetail() {
   loadProfile(title.imdb_id,profilePanel);
   $('#mark-seen').addEventListener('click',()=>updateLibrary('seen',!title.seen));
   $('#mark-watchlist').addEventListener('click',()=>updateLibrary('watchlist',!title.watchlist));
-  const graphLink=document.createElement('a');graphLink.className='imdb-link';graphLink.href='/graph?seed='+encodeURIComponent(title.imdb_id);graphLink.textContent='Explore graph connections →';detail.querySelector('.detail-body').append(graphLink);
+  const graphLink=document.createElement('a');graphLink.className='imdb-link';graphLink.href='/graph/?'+new URLSearchParams({seed:title.imdb_id,type:state.type,language:state.language,country:state.country});graphLink.textContent='Explore graph connections →';detail.querySelector('.detail-body').append(graphLink);
 }
 async function loadProfile(identifier,panel) {
   try {
@@ -115,6 +121,11 @@ async function load({scrollToTop = false} = {}) {
     if (controls.genre.options.length===1) {
       for(const genre of body.genres) {
         const option=document.createElement('option');option.value=genre.genre;option.textContent=genre.genre;controls.genre.append(option);
+      }
+    }
+    for (const [key, field] of [['language','languages'], ['country','countries']]) if (controls[key].options.length===1) {
+      for (const value of body.filters?.[field] || []) {
+        const option=document.createElement('option');option.value=value.id;option.textContent=`${value.name} (${number.format(value.count)})`;controls[key].append(option);
       }
     }
     for(const [key,control] of Object.entries(controls))control.value=state[key];

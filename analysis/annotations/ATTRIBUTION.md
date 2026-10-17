@@ -29,3 +29,7 @@ The source excerpts and adaptations in the pilot data are provided under [CC BY-
 - [The Wire](https://www.tvmaze.com/shows/179/the-wire)
 - [Veep](https://www.tvmaze.com/shows/142/veep)
 - [Westworld](https://www.tvmaze.com/shows/1371/westworld)
+
+## Title language and country metadata
+
+`title-origins.json` contains Wikidata original-language (P364) and country-of-origin (P495) claims, fetched using the catalog’s exact Wikidata item mappings. Wikidata structured data is available under CC0. Each title includes its source item URL, and the file records the retrieval date. Claims can be incomplete; empty arrays represent unknown metadata, not inferred absence. This file contains no plot passages.

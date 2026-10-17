@@ -13,3 +13,5 @@
 
 summary:focus-visible{outline:3px solid #779872;outline-offset:4px}
 .imdb-title-link{color:var(--sage);text-decoration:underline;text-underline-offset:3px;padding:5px 0}.imdb-title-link:hover{color:var(--ink)}
+.result-filters{display:grid;grid-template-columns:1fr 1fr 1fr auto;align-items:end;gap:14px;background:#edefe7;border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:24px}.result-filters label{min-width:0}.result-filters .map-toggle{min-height:43px}.result-filters p{grid-column:1/-1;margin:0;color:var(--muted);font-size:10px;line-height:1.7}.origin-metadata{flex-basis:100%;font-size:10px;color:var(--muted);line-height:1.8}.origin-metadata a{color:var(--sage);text-underline-offset:3px}
+@media(max-width:760px){.result-filters{grid-template-columns:1fr 1fr}.result-filters label:first-child{grid-column:1/-1}.result-filters .map-toggle{grid-column:1/-1}.result-filters{gap:12px;padding:16px}}
