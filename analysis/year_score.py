@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plot yearly mean, median and 90th percentile, without vote/rating cutoffs.
+"""Plot yearly statistics for all titles and for titles with 50K+ votes.
 
 Requires matplotlib (only for regenerating these figures).
 """
@@ -22,15 +22,19 @@ FORMATS = {'movie': 'movies', 'tvSeries': 'tv', 'tvMiniSeries': 'tv'}
 
 def main():
     source = json.loads((ROOT / 'output/imdb-rating-distribution.json').read_text())
-    groups = {group: {'rated': 0, 'missing_year': 0, 'cells': Counter()} for group in ('movies', 'tv')}
+    groups = {group: {'rated': 0, 'missing_year': 0, 'cells': Counter()}
+              for group in ('movies', 'tv', 'movies-50k', 'tv-50k')}
     with gzip.open(ROOT / 'output/imdb-movies-and-tv.csv.gz', 'rt', encoding='utf-8', newline='') as stream:
         for row in csv.DictReader(stream):
-            group = groups[FORMATS[row['title_type']]]
-            group['rated'] += 1
-            if not row['start_year'].isdigit():
-                group['missing_year'] += 1
-                continue
-            group['cells'][(int(row['start_year']), round(float(row['rating']) * 10))] += 1
+            key = FORMATS[row['title_type']]
+            selected = [key] + ([key + '-50k'] if int(row['votes']) >= 50000 else [])
+            for identifier in selected:
+                group = groups[identifier]
+                group['rated'] += 1
+                if not row['start_year'].isdigit():
+                    group['missing_year'] += 1
+                    continue
+                group['cells'][(int(row['start_year']), round(float(row['rating']) * 10))] += 1
     first_year = min(year for group in groups.values() for year, _ in group['cells'])
     last_year = max(year for group in groups.values() for year, _ in group['cells'])
     TARGET.mkdir(exist_ok=True)
@@ -39,7 +43,7 @@ def main():
                          'text.color': '#2d302b', 'axes.labelcolor': '#2d302b',
                          'xtick.color': '#555d51', 'ytick.color': '#555d51', 'axes.edgecolor': '#cbd2c3'})
     metadata = {'snapshot_date': '2026-10-15', 'scope': source['scope'],
-                'cutoffs': 'No minimum vote count or rating cutoff; every rated title has equal weight.',
+                'cutoffs': 'Separate all-vote-count and >=50,000-vote populations. No rating cutoff in either; every title has equal weight.',
                 'statistics': {'mean': 'sum(title IMDb ratings) / number of rated titles in that year',
                                'median': 'Middle title rating after sorting; mean of the two middle ratings for even title counts',
                                'p90': 'Nearest-rank 90th percentile: sorted rating at 1-based position ceil(0.9 * title count); no interpolation'},
@@ -47,8 +51,12 @@ def main():
                 'source_urls': [s['url'] for s in source['sources']], 'groups': {}}
     for key, group in groups.items():
         plotted = sum(group['cells'].values())
-        label = 'Movies' if key == 'movies' else 'TV series & miniseries'
+        is_movie = key.startswith('movies')
+        minimum_votes = 50000 if key.endswith('-50k') else 0
+        vote_label = '50,000+ votes' if minimum_votes else 'All vote counts'
+        label = 'Movies' if is_movie else 'TV series & miniseries'
         group_meta = {'rated_titles': group['rated'], 'plotted_titles': plotted,
+                      'minimum_votes': minimum_votes,
                       'missing_release_year': group['missing_year'],
                       'first_year': min(y for y, _ in group['cells']),
                       'last_year': max(y for y, _ in group['cells'])}
@@ -60,6 +68,7 @@ def main():
             year_score_totals[year] += score * count
             year_ratings[year].extend([score] * count)
         year_medians = {year: median(scores) / 10 for year, scores in year_ratings.items()}
+        group_meta['overall_median'] = median([score for scores in year_ratings.values() for score in scores]) / 10
         year_p90 = {year: sorted(scores)[(9 * len(scores) + 9) // 10 - 1] / 10
                     for year, scores in year_ratings.items()}
         years = list(range(first_year, last_year + 1))
@@ -73,13 +82,13 @@ def main():
         ax.plot(years, p90, color='#3c6f9e', linewidth=1.8, linestyle='-.', marker='^', markersize=2.8, label='90th percentile (P90)')
         ax.legend(loc='upper left', frameon=False, ncol=3, fontsize=11)
         ax.set(xlim=(first_year - .5, last_year + .5), ylim=(1, 10),
-               xlabel='Release year' if key == 'movies' else 'Series premiere year', ylabel='IMDb score / 10')
+               xlabel='Release year' if is_movie else 'Series premiere year', ylabel='IMDb score / 10')
         ax.xaxis.set_major_locator(MultipleLocator(10)); ax.yaxis.set_major_locator(MultipleLocator(1))
         ax.spines[['top', 'right']].set_visible(False)
         ax.grid(axis='y', color='#70806a', alpha=.13, linewidth=.6)
         ax.set_axisbelow(True)
         fig.text(.07, .925, f'{label}: IMDb scores by year', fontsize=20)
-        fig.text(.07, .865, f'{plotted:,} titles · All vote counts and ratings · IMDb snapshot: 15 October 2026', fontsize=11, color='#626b5b')
+        fig.text(.07, .865, f'{plotted:,} titles · {vote_label} · No rating cutoff · IMDb snapshot: 15 October 2026', fontsize=11, color='#626b5b')
         fig.text(.07, .105, 'Every title counts equally. P90 = rating at or below which at least 90% of that year’s titles fall.', fontsize=10, color='#626b5b')
         fig.text(.07, .067, f'No vote weighting or smoothing. Gaps = no rated titles. {group["missing_year"]:,} titles lack a release year. Sparse years can fluctuate.', fontsize=10, color='#626b5b')
         fig.text(.07, .029, 'Non-adult movies / series / miniseries. Unrated titles, episodes, shorts and TV movies excluded. 2026 is incomplete.', fontsize=9, color='#76796f')

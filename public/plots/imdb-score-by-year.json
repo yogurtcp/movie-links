@@ -14,7 +14,7 @@
     "countries": "all",
     "unrated": "excluded from distributions"
   },
-  "cutoffs": "No minimum vote count or rating cutoff; every rated title has equal weight.",
+  "cutoffs": "Separate all-vote-count and >=50,000-vote populations. No rating cutoff in either; every title has equal weight.",
   "statistics": {
     "mean": "sum(title IMDb ratings) / number of rated titles in that year",
     "median": "Middle title rating after sorting; mean of the two middle ratings for even title counts",
@@ -29,16 +29,38 @@
     "movies": {
       "rated_titles": 345360,
       "plotted_titles": 345326,
+      "minimum_votes": 0,
       "missing_release_year": 34,
       "first_year": 1894,
-      "last_year": 2026
+      "last_year": 2026,
+      "overall_median": 6.3
     },
     "tv": {
       "rated_titles": 139913,
       "plotted_titles": 139880,
+      "minimum_votes": 0,
       "missing_release_year": 33,
       "first_year": 1908,
-      "last_year": 2026
+      "last_year": 2026,
+      "overall_median": 7.1
+    },
+    "movies-50k": {
+      "rated_titles": 4674,
+      "plotted_titles": 4674,
+      "minimum_votes": 50000,
+      "missing_release_year": 0,
+      "first_year": 1920,
+      "last_year": 2026,
+      "overall_median": 6.8
+    },
+    "tv-50k": {
+      "rated_titles": 721,
+      "plotted_titles": 721,
+      "minimum_votes": 50000,
+      "missing_release_year": 0,
+      "first_year": 1959,
+      "last_year": 2026,
+      "overall_median": 8.1
     }
   }
 }
